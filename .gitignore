@@ -44,6 +44,10 @@ yarn-error.log*
 # supabase
 .supabase/
 
+# supabase local state
+supabase/.branches/
+supabase/.temp/
+
 # editors
 .idea/
 .vscode/
