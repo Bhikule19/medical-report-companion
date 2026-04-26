@@ -1,0 +1,16 @@
+node_modules/
+.next/
+out/
+dist/
+build/
+.env
+.env.local
+.env.*.local
+.supabase/
+.DS_Store
+*.log
+.vscode/
+.idea/
+coverage/
+playwright-report/
+test-results/
