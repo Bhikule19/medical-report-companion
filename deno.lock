@@ -58,7 +58,10 @@
     "https://esm.sh/canvas@3.2.3?target=denonext": "946dba4c1c0d05ad8415695a316b1b8afd85335f470969bb340b2b34b1eeb27a",
     "https://esm.sh/pdfjs-dist@4.0.379/denonext/legacy/build/pdf.mjs": "0a8f6e1c50af16e5d89079d783b4b6ff4937465471e1c85a37f34d514ba31766",
     "https://esm.sh/pdfjs-dist@4.0.379/denonext/legacy/build/pdf.worker.mjs": "83ee6584ed3bc02b3235003c0008e93275bbacc602d5d8a1fc941eea1041d81b",
-    "https://esm.sh/pdfjs-dist@4.0.379/legacy/build/pdf.mjs": "a7a7d616eaaab221fafed91a25f19812712bd969f2fbe607a556d966758aab39"
+    "https://esm.sh/pdfjs-dist@4.0.379/legacy/build/pdf.mjs": "a7a7d616eaaab221fafed91a25f19812712bd969f2fbe607a556d966758aab39",
+    "https://esm.sh/unpdf@0.12.1": "fbffa8cb0799e760249fb47326cc2134abda5e15d1f71e2dc20c1594217aaad6",
+    "https://esm.sh/unpdf@0.12.1/denonext/pdfjs.mjs": "05a65f2d4a1ec50188b9df481cd3730b5b1a160f3fde5efd84ea8b0551e495b9",
+    "https://esm.sh/unpdf@0.12.1/denonext/unpdf.mjs": "11b8f12478e2a1bd12ff9294699b6d41c9eb2425ee1832579a967c7049c0ef6a"
   },
   "workspace": {
     "packageJson": {

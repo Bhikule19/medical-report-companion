@@ -1,7 +1,7 @@
-import { getDocument } from 'https://esm.sh/pdfjs-dist@4.0.379/legacy/build/pdf.mjs';
+import { getDocumentProxy } from 'https://esm.sh/unpdf@0.12.1';
 
 export async function extractDigitalPdfText(bytes: Uint8Array): Promise<string> {
-  const doc = await getDocument({ data: bytes }).promise;
+  const doc = await getDocumentProxy(bytes);
   const parts: string[] = [];
   for (let i = 1; i <= doc.numPages; i++) {
     const page = await doc.getPage(i);
@@ -23,7 +23,7 @@ export async function isDigitalPdf(bytes: Uint8Array): Promise<boolean> {
 export async function probeDigitalPdf(
   bytes: Uint8Array,
 ): Promise<{ isDigital: boolean; text: string; pageCount: number }> {
-  const doc = await getDocument({ data: bytes }).promise;
+  const doc = await getDocumentProxy(bytes);
   const parts: string[] = [];
   for (let i = 1; i <= doc.numPages; i++) {
     const page = await doc.getPage(i);
