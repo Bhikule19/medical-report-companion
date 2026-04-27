@@ -1,5 +1,10 @@
 {
   "version": "5",
+  "redirects": {
+    "https://esm.sh/build/Release/canvas.node?target=denonext": "https://esm.sh/build@0.1.4/Release/canvas.node?target=denonext",
+    "https://esm.sh/canvas?target=denonext": "https://esm.sh/canvas@3.2.3?target=denonext",
+    "https://esm.sh/path2d-polyfill?target=denonext": "https://esm.sh/path2d-polyfill@3.2.1?target=denonext"
+  },
   "remote": {
     "https://deno.land/std@0.224.0/assert/_constants.ts": "a271e8ef5a573f1df8e822a6eb9d09df064ad66a4390f21b3e31f820a38e0975",
     "https://deno.land/std@0.224.0/assert/assert.ts": "09d30564c09de846855b7b071e62b5974b001bb72a4b797958fe0660e7849834",
@@ -46,7 +51,12 @@
     "https://deno.land/x/zod@v3.23.8/index.ts": "d27aabd973613985574bc31f39e45cb5d856aa122ef094a9f38a463b8ef1a268",
     "https://deno.land/x/zod@v3.23.8/locales/en.ts": "a7a25cd23563ccb5e0eed214d9b31846305ddbcdb9c5c8f508b108943366ab4c",
     "https://deno.land/x/zod@v3.23.8/mod.ts": "ec6e2b1255c1a350b80188f97bd0a6bac45801bb46fc48f50b9763aa66046039",
-    "https://deno.land/x/zod@v3.23.8/types.ts": "1b172c90782b1eaa837100ebb6abd726d79d6c1ec336350c8e851e0fd706bf5c"
+    "https://deno.land/x/zod@v3.23.8/types.ts": "1b172c90782b1eaa837100ebb6abd726d79d6c1ec336350c8e851e0fd706bf5c",
+    "https://esm.sh/canvas@3.2.3/denonext/canvas.mjs": "486b97cc48c65fdabce30d0fcf6750d998db0713272af1fd9c2d0c4ddaecf5e1",
+    "https://esm.sh/canvas@3.2.3?target=denonext": "946dba4c1c0d05ad8415695a316b1b8afd85335f470969bb340b2b34b1eeb27a",
+    "https://esm.sh/pdfjs-dist@4.0.379/denonext/legacy/build/pdf.mjs": "0a8f6e1c50af16e5d89079d783b4b6ff4937465471e1c85a37f34d514ba31766",
+    "https://esm.sh/pdfjs-dist@4.0.379/denonext/legacy/build/pdf.worker.mjs": "83ee6584ed3bc02b3235003c0008e93275bbacc602d5d8a1fc941eea1041d81b",
+    "https://esm.sh/pdfjs-dist@4.0.379/legacy/build/pdf.mjs": "a7a7d616eaaab221fafed91a25f19812712bd969f2fbe607a556d966758aab39"
   },
   "workspace": {
     "packageJson": {
@@ -66,6 +76,7 @@
         "npm:eslint@9",
         "npm:jsdom@^29.0.2",
         "npm:next@15.5.15",
+        "npm:pdf-lib@^1.17.1",
         "npm:postcss@^8.4.31",
         "npm:prettier@^3.8.3",
         "npm:react-dom@19.1.0",
