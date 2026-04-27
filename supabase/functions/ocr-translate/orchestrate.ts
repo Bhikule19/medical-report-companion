@@ -27,12 +27,13 @@ export interface OrchestrateResult {
 export async function orchestrate(input: OrchestrateInput): Promise<OrchestrateResult> {
   const { bytes, mimeType, targetLang, deps } = input;
   let original = '';
-  const pageCount: number | null = null;
+  let pageCount: number | null = null;
 
   if (mimeType === 'application/pdf') {
-    const { isDigital, text } = await probeDigitalPdf(bytes.slice());
-    if (isDigital) {
-      original = text;
+    const probe = await probeDigitalPdf(bytes.slice());
+    pageCount = probe.pageCount;
+    if (probe.isDigital) {
+      original = probe.text;
     } else {
       original = await ocrViaVision(bytes.slice(), mimeType, {
         apiKey: deps.visionApiKey,
