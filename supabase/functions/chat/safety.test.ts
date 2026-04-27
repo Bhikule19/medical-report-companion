@@ -1,5 +1,5 @@
 import { assertEquals, assertStringIncludes, assert } from 'https://deno.land/std@0.224.0/assert/mod.ts';
-import { containsPrescriptionPattern, appendSafetyFooter } from './safety.ts';
+import { containsPrescriptionPattern, appendSafetyFooter, getSafetyFooter } from './safety.ts';
 
 Deno.test('containsPrescriptionPattern: imperative drug instruction', () => {
   assert(containsPrescriptionPattern('You should take metformin 500mg daily'));
@@ -88,4 +88,12 @@ Deno.test('appendSafetyFooter: idempotent on already-footered text', () => {
   const once = appendSafetyFooter('text', 'en');
   // No assertion on idempotency in this test — just verify the structure makes it possible to detect
   assert(once.length > 'text'.length);
+});
+
+Deno.test('getSafetyFooter returns localised footer for each language', () => {
+  for (const lang of ['en', 'hi', 'ta', 'te', 'bn', 'mr'] as const) {
+    const f = getSafetyFooter(lang);
+    assert(f.length > 10);
+    assertStringIncludes(f, '⚠');
+  }
 });

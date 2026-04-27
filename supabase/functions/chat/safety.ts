@@ -31,6 +31,10 @@ const FOOTERS: Record<Lang, string> = {
   mr: '⚠ या उत्तरात वैद्यकीय सल्ला असू शकतो. कृती करण्यापूर्वी कृपया पात्र आरोग्य सेवा प्रदात्याशी सल्लामसलत करा.',
 };
 
+export function getSafetyFooter(lang: Lang): string {
+  return FOOTERS[lang];
+}
+
 export function appendSafetyFooter(text: string, lang: Lang): string {
   return `${text}\n\n${FOOTERS[lang]}`;
 }
