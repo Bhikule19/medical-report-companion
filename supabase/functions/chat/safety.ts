@@ -15,7 +15,7 @@ const PATTERNS: RegExp[] = [
   // Explicit diagnosis claims
   /\b(diagnose|diagnosing) you\b/i,
   // Required treatment
-  /\byou need (surgery|chemotherapy|radiation|antibiotics|insulin|chemo|dialysis|transfusion)\b/i,
+  /\byou need (a |an |the )?(surgery|chemotherapy|radiation|antibiotics|insulin|chemo|dialysis|transfusion|blood transfusion)\b/i,
 ];
 
 export function containsPrescriptionPattern(text: string): boolean {
