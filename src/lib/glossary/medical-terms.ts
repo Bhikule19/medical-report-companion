@@ -89,7 +89,12 @@ export function applyGlossary(
   let result = text;
   let counter = 0;
   for (const [englishKey, sourceTerm] of Object.entries(sourceTerms)) {
-    const re = new RegExp(`\\b${sourceTerm}\\b`, 'gi');
+    const isAscii = /^[\x00-\x7F]+$/.test(sourceTerm);
+    const escaped = sourceTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const pattern = isAscii
+      ? `\\b${escaped}\\b`
+      : `(?<![\\p{L}\\p{N}])${escaped}(?![\\p{L}\\p{N}])`;
+    const re = new RegExp(pattern, 'giu');
     result = result.replace(re, () => {
       const placeholder = `__GLOSS_${counter}__`;
       replacements.push({ placeholder, englishKey });

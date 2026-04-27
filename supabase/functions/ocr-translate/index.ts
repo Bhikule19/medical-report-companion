@@ -4,8 +4,13 @@ import { ocrRequestSchema } from '../_shared/validate.ts';
 import { validateFile } from './file-guard.ts';
 import { orchestrate } from './orchestrate.ts';
 
-const visionApiKey = Deno.env.get('GOOGLE_CLOUD_VISION_API_KEY') ?? '';
-const translateApiKey = Deno.env.get('GOOGLE_TRANSLATE_API_KEY') ?? '';
+const visionApiKey = Deno.env.get('GOOGLE_CLOUD_VISION_API_KEY');
+const translateApiKey = Deno.env.get('GOOGLE_TRANSLATE_API_KEY');
+if (!visionApiKey || !translateApiKey) {
+  throw new Error(
+    'missing_api_keys: GOOGLE_CLOUD_VISION_API_KEY and GOOGLE_TRANSLATE_API_KEY are required',
+  );
+}
 
 const rateLimiter = createRateLimiter({ limit: 5, windowMs: 60_000 });
 

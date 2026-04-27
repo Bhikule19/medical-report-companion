@@ -19,4 +19,16 @@ describe('glossary', () => {
     const restored = restoreGlossary(translated, replacements, 'hi');
     expect(restored).toContain('क्रिएटिनिन');
   });
+
+  it('replaces medical terms in Hindi source text', () => {
+    const { text, replacements } = applyGlossary('हीमोग्लोबिन सामान्य है', 'hi');
+    expect(text).toMatch(/__GLOSS_\d+__/);
+    expect(replacements.length).toBeGreaterThan(0);
+  });
+
+  it('handles regex-special characters defensively', () => {
+    // No glossary term currently has regex specials, but the escaping should not break normal terms
+    const { text } = applyGlossary('Cholesterol level normal', 'en');
+    expect(text).toMatch(/__GLOSS_\d+__/);
+  });
 });

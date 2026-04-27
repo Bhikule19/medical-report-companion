@@ -19,3 +19,10 @@ export async function isDigitalPdf(bytes: Uint8Array): Promise<boolean> {
   const text = await extractDigitalPdfText(bytes);
   return text.length > 50; // heuristic: scanned PDFs return little/no text
 }
+
+export async function probeDigitalPdf(
+  bytes: Uint8Array,
+): Promise<{ isDigital: boolean; text: string }> {
+  const text = await extractDigitalPdfText(bytes);
+  return { isDigital: text.length > 50, text };
+}

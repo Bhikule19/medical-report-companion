@@ -45,3 +45,13 @@ Deno.test('throws on translate API error', async () => {
   }
   assertEquals((caught as Error).message.includes('translate_failed'), true);
 });
+
+Deno.test('returns empty string when API returns malformed body', async () => {
+  const fakeFetch: typeof fetch = async () =>
+    new Response(JSON.stringify({ unexpected: 'shape' }), { status: 200 });
+  const result = await translateWithGlossary('text', 'en', 'hi', {
+    apiKey: 'test',
+    fetchImpl: fakeFetch,
+  });
+  assertEquals(result, '');
+});

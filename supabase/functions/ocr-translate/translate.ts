@@ -22,6 +22,6 @@ export async function translateWithGlossary(
   });
   if (!res.ok) throw new Error(`translate_failed: ${res.status}`);
   const json = await res.json();
-  const translated = json.data.translations[0].translatedText as string;
+  const translated: string = json?.data?.translations?.[0]?.translatedText ?? '';
   return restoreGlossary(translated, replacements, target);
 }

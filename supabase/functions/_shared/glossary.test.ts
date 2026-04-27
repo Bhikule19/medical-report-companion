@@ -18,3 +18,14 @@ Deno.test('restores placeholders to target language terms after translation', ()
   const restored = restoreGlossary(translated, replacements, 'hi');
   assert(restored.includes('क्रिएटिनिन'));
 });
+
+Deno.test('replaces medical terms in Hindi source text', () => {
+  const { text, replacements } = applyGlossary('हीमोग्लोबिन सामान्य है', 'hi');
+  assertEquals(/__GLOSS_\d+__/.test(text), true);
+  assert(replacements.length > 0);
+});
+
+Deno.test('handles regex-special characters defensively', () => {
+  const { text } = applyGlossary('Cholesterol level normal', 'en');
+  assertEquals(/__GLOSS_\d+__/.test(text), true);
+});

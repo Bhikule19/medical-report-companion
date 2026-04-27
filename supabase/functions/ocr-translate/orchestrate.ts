@@ -1,5 +1,5 @@
 import { detectLanguage } from './detect-lang.ts';
-import { isDigitalPdf, extractDigitalPdfText } from './pdf.ts';
+import { probeDigitalPdf } from './pdf.ts';
 import { ocrViaVision } from './vision.ts';
 import { translateWithGlossary } from './translate.ts';
 import type { Lang } from '../_shared/glossary.ts';
@@ -30,11 +30,11 @@ export async function orchestrate(input: OrchestrateInput): Promise<OrchestrateR
   const pageCount: number | null = null;
 
   if (mimeType === 'application/pdf') {
-    // pdfjs transfers the ArrayBuffer, so we pass fresh copies to each call.
-    if (await isDigitalPdf(bytes.slice())) {
-      original = await extractDigitalPdfText(bytes.slice());
+    const { isDigital, text } = await probeDigitalPdf(bytes.slice());
+    if (isDigital) {
+      original = text;
     } else {
-      original = await ocrViaVision(bytes, mimeType, {
+      original = await ocrViaVision(bytes.slice(), mimeType, {
         apiKey: deps.visionApiKey,
         fetchImpl: deps.visionFetch,
       });
