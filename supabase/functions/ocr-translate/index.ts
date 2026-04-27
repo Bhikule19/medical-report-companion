@@ -1,4 +1,5 @@
 import { corsHeaders } from '../_shared/cors.ts';
+import { createRateLimiter } from '../_shared/ratelimit.ts';
 import { ocrRequestSchema } from '../_shared/validate.ts';
 import { validateFile } from './file-guard.ts';
 import { orchestrate } from './orchestrate.ts';
@@ -6,9 +7,13 @@ import { orchestrate } from './orchestrate.ts';
 const visionApiKey = Deno.env.get('GOOGLE_CLOUD_VISION_API_KEY') ?? '';
 const translateApiKey = Deno.env.get('GOOGLE_TRANSLATE_API_KEY') ?? '';
 
+const rateLimiter = createRateLimiter({ limit: 5, windowMs: 60_000 });
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
   if (req.method !== 'POST') return json({ error: 'method_not_allowed' }, 405);
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown';
+  if (!rateLimiter.check(ip).allowed) return json({ error: 'rate_limited' }, 429);
   try {
     const form = await req.formData();
     const file = form.get('file');
