@@ -20,7 +20,11 @@ import { getSupabaseConfig } from '@/lib/env';
 import { useSession } from '@/lib/auth/useSession';
 import { getBrowserSupabase } from '@/lib/supabase/browserClient';
 import { createReport, deleteReport, getReport, listReports } from '@/lib/db/reports';
-import { createMessage, listMessagesForReport } from '@/lib/db/messages';
+import {
+  clearChatMessagesKeepingSummary,
+  createMessage,
+  listMessagesForReport,
+} from '@/lib/db/messages';
 import { getConsents } from '@/lib/db/consents';
 import type { Language } from '@/lib/types';
 
@@ -331,6 +335,15 @@ function HomeContent() {
     );
   }
 
+  async function handleClearChat() {
+    // Wipe in-memory chat turns. If the report is persisted, also delete the
+    // user/assistant messages from DB while keeping the first message (summary).
+    if (report?.id) {
+      await clearChatMessagesKeepingSummary(supabase, report.id);
+    }
+    useReportStore.setState({ messages: [] });
+  }
+
   const streaming = summaryStreaming || chatStreaming || uploading;
 
   return (
@@ -398,6 +411,7 @@ function HomeContent() {
                 streaming={chatStreaming || summaryStreaming}
                 onTranscribe={handleTranscribe}
                 onSpeakAssistant={handleSpeak}
+                onClear={handleClearChat}
               />
             </div>
           )}
