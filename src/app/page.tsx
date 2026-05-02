@@ -1,14 +1,18 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { LanguagePicker } from '@/components/LanguagePicker';
 import { UploadZone } from '@/components/UploadZone';
 import { ReportSummary } from '@/components/ReportSummary';
 import { ChatPanel } from '@/components/ChatPanel';
+import { AuthGate } from '@/components/AuthGate';
+import { UserMenu } from '@/components/UserMenu';
 import { useReportStore } from '@/store/useReportStore';
 import { ocrTranslate, OcrError } from '@/lib/api/ocrTranslate';
 import { chat } from '@/lib/api/chat';
 import { getSupabaseConfig } from '@/lib/env';
+import { useSession } from '@/lib/auth/useSession';
 import type { Language } from '@/lib/types';
 
 const config = getSupabaseConfig({
@@ -16,7 +20,10 @@ const config = getSupabaseConfig({
   NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
 });
 
-export default function Page() {
+function HomeContent() {
+  const router = useRouter();
+  const { session } = useSession();
+
   const language = useReportStore((s) => s.language);
   const report = useReportStore((s) => s.report);
   const summary = useReportStore((s) => s.summary);
@@ -27,18 +34,29 @@ export default function Page() {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
 
+  function bounceToSignIn() {
+    router.replace('/sign-in?error=session_expired');
+  }
+
   async function handleFile(file: File) {
+    if (!session) return bounceToSignIn();
     setUploadError(null);
     setUploading(true);
     try {
-      const result = await ocrTranslate({ file, targetLang: language, config });
+      const result = await ocrTranslate({
+        file,
+        targetLang: language,
+        accessToken: session.access_token,
+        config,
+      });
       useReportStore.getState().setReport({
         originalText: result.original_text,
         pageCount: result.page_count,
         sourceLang: result.source_language as Language,
       });
-      await streamSummary(result.original_text, language);
+      await streamSummary(result.original_text, language, session.access_token);
     } catch (e) {
+      if (e instanceof OcrError && e.status === 401) return bounceToSignIn();
       if (e instanceof OcrError && e.status === 429 && e.retryAfterSeconds) {
         setUploadError(`Too many requests. Try again in ${e.retryAfterSeconds}s.`);
       } else {
@@ -49,11 +67,17 @@ export default function Page() {
     }
   }
 
-  async function streamSummary(reportText: string, lang: Language) {
+  async function streamSummary(reportText: string, lang: Language, accessToken: string) {
     const store = useReportStore.getState();
     store.setSummaryStreaming(true);
     try {
-      for await (const ev of chat({ mode: 'summary', reportText, language: lang, config })) {
+      for await (const ev of chat({
+        mode: 'summary',
+        reportText,
+        language: lang,
+        accessToken,
+        config,
+      })) {
         if (ev.kind === 'chunk') store.appendSummary(ev.text);
         else if (ev.kind === 'footer') store.appendSummary(`\n\n${ev.text}`);
         else if (ev.kind === 'error') store.appendSummary(`\n\n(error: ${ev.message})`);
@@ -64,7 +88,7 @@ export default function Page() {
   }
 
   async function handleSendChat(question: string) {
-    if (!report) return;
+    if (!report || !session) return;
     const store = useReportStore.getState();
     const history = store.messages;
     store.appendUserMessage(question);
@@ -74,6 +98,7 @@ export default function Page() {
         mode: 'chat',
         reportText: report.originalText,
         language,
+        accessToken: session.access_token,
         history,
         question,
         config,
@@ -89,9 +114,12 @@ export default function Page() {
 
   return (
     <main className="mx-auto flex max-w-5xl flex-col gap-6 p-6">
-      <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-semibold">Medical Report Companion</h1>
-        <LanguagePicker />
+        <div className="flex flex-wrap items-center gap-4">
+          <LanguagePicker />
+          {session?.user?.email && <UserMenu email={session.user.email} />}
+        </div>
       </header>
 
       {!report && <UploadZone onFile={handleFile} disabled={uploading} />}
@@ -119,5 +147,13 @@ export default function Page() {
         </div>
       )}
     </main>
+  );
+}
+
+export default function Page() {
+  return (
+    <AuthGate>
+      <HomeContent />
+    </AuthGate>
   );
 }

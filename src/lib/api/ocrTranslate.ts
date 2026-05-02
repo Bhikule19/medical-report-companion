@@ -4,6 +4,7 @@ import type { SupabaseConfig } from '../env';
 export interface OcrTranslateInput {
   file: File;
   targetLang: Language;
+  accessToken: string;
   config: SupabaseConfig;
   fetchImpl?: typeof fetch;
 }
@@ -28,7 +29,7 @@ export async function ocrTranslate(input: OcrTranslateInput): Promise<OcrRespons
   const res = await fetchFn(`${input.config.url}/functions/v1/ocr-translate`, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${input.config.anonKey}`,
+      Authorization: `Bearer ${input.accessToken}`,
       apikey: input.config.anonKey,
     },
     body: form,
