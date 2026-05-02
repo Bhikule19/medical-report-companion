@@ -1,6 +1,10 @@
-export type Lang = 'en' | 'hi' | 'ta' | 'te' | 'bn' | 'mr';
+export type Lang =
+  | 'en' | 'hi' | 'ta' | 'te' | 'bn' | 'mr'
+  | 'es' | 'fr' | 'de' | 'pt' | 'ru' | 'zh' | 'ar' | 'ja';
 
-export const glossary: Record<Lang, Record<string, string>> = {
+// Glossary entries exist for the original 6 Indian languages only.
+// New international languages translate without medical-term preservation.
+export const glossary: Partial<Record<Lang, Record<string, string>>> = {
   en: {
     creatinine: 'creatinine',
     haemoglobin: 'haemoglobin',
@@ -85,6 +89,7 @@ export function applyGlossary(
   sourceLang: Lang,
 ): { text: string; replacements: GlossaryReplacement[] } {
   const sourceTerms = glossary[sourceLang];
+  if (!sourceTerms) return { text, replacements: [] };
   const replacements: GlossaryReplacement[] = [];
   let result = text;
   let counter = 0;
@@ -113,7 +118,7 @@ export function restoreGlossary(
   const target = glossary[targetLang];
   let result = text;
   for (const r of replacements) {
-    const targetTerm = target[r.englishKey] ?? r.englishKey;
+    const targetTerm = target?.[r.englishKey] ?? r.englishKey;
     result = result.split(r.placeholder).join(targetTerm);
   }
   return result;

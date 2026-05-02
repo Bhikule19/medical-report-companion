@@ -12,6 +12,14 @@ const LANG_TO_DEEPGRAM: Record<Lang, string> = {
   te: 'te',
   bn: 'bn',
   mr: 'mr',
+  es: 'es',
+  fr: 'fr',
+  de: 'de',
+  pt: 'pt',
+  ru: 'ru',
+  zh: 'zh',
+  ar: 'ar',
+  ja: 'ja',
 };
 
 export interface SttResult {
