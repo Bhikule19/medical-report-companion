@@ -14,8 +14,9 @@ A single client-rendered page at `/` that:
 
 1. Lets the user pick a target language (en, hi, ta, te, bn, mr; default `hi`).
 2. Accepts a PDF or image (≤10 MB) via drag-drop or file picker.
-3. POSTs the file to `/ocr-translate` and renders the returned summary plus metadata (page count, source detection).
-4. Once a report exists, exposes a chat panel that streams responses from `/chat` token-by-token via SSE, resending the report text on every call.
+3. POSTs the file to `/ocr-translate` to extract the report text (`original_text`) plus metadata (page count, source language detection).
+4. Auto-triggers `/chat` with `mode=summary` to stream a plain-language summary in the chosen language. The `translated_text` returned by `/ocr-translate` is a literal machine translation of medical jargon and is not user-facing — only `original_text` is fed to `/chat`, and the LLM handles both interpretation and target-language output via its system prompt.
+5. After the summary stream completes, exposes a chat panel that streams responses from `/chat` (`mode=chat`) token-by-token via SSE, resending the report text and history on every call.
 
 Explicitly out of scope for this PR: authentication, history persistence, voice, maps, large-text toggle, settings page, consent UI.
 
@@ -44,9 +45,10 @@ Both API client modules accept an injectable `fetchImpl` — mirrors the backend
 ## Data flow
 
 1. User selects language → `useReportStore.setLanguage(lang)`.
-2. User drops a file → `UploadZone` validates size/type → `ocrTranslate({ file, targetLang, fetchImpl })` → on success, `useReportStore.setReport({ extractedText, summary, pageCount, sourceLang })`.
-3. `ReportSummary` and `ChatPanel` render iff `report !== null`.
-4. User sends a chat message → `useReportStore.appendMessage({ role: "user", content })` → `chat({ messages, reportText: report.extractedText, language, fetchImpl })` returns an async iterator → for each chunk, `useReportStore.appendToLastAssistantMessage(chunk)`.
+2. User drops a file → `UploadZone` validates size/type → `ocrTranslate({ file, targetLang, fetchImpl })` → on success, `useReportStore.setReport({ originalText, pageCount, sourceLang })` (no `translated_text` is stored — it's discarded).
+3. With a report set, the page auto-calls `chat({ mode: "summary", reportText, language, fetchImpl })`. Tokens stream into `useReportStore.summary` until the SSE `done` event.
+4. `ReportSummary` renders the streaming summary text. `ChatPanel` renders once the summary stream finishes.
+5. User sends a chat message → `useReportStore.appendMessage({ role: "user", content })` → `chat({ mode: "chat", reportText, language, history, question, fetchImpl })` returns an async iterator → for each chunk, `useReportStore.appendToLastAssistantMessage(chunk)`.
 
 The frontend never persists; the store is in-memory only. Refresh = blank slate. This is acceptable for the MVP; persistence comes with auth.
 
