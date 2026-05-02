@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { ChatMessage, Language, Report } from '@/lib/types';
+import type { ReportSummaryRow } from '@/lib/db/reports';
 
 interface ReportState {
   language: Language;
@@ -8,6 +9,7 @@ interface ReportState {
   summaryStreaming: boolean;
   messages: ChatMessage[];
   chatStreaming: boolean;
+  historyList: ReportSummaryRow[];
 
   setLanguage: (lang: Language) => void;
   setReport: (report: Report) => void;
@@ -16,6 +18,12 @@ interface ReportState {
   appendUserMessage: (content: string) => void;
   appendAssistantChunk: (chunk: string) => void;
   setChatStreaming: (streaming: boolean) => void;
+  setHistoryList: (list: ReportSummaryRow[]) => void;
+  loadReport: (
+    report: Report,
+    messages: { role: 'user' | 'assistant'; content: string }[],
+  ) => void;
+  clearReport: () => void;
   reset: () => void;
 }
 
@@ -26,6 +34,7 @@ const initial = {
   summaryStreaming: false,
   messages: [] as ChatMessage[],
   chatStreaming: false,
+  historyList: [] as ReportSummaryRow[],
 };
 
 export const useReportStore = create<ReportState>((set) => ({
@@ -47,5 +56,13 @@ export const useReportStore = create<ReportState>((set) => ({
       return { messages: [...s.messages, { role: 'assistant', content: chunk }] };
     }),
   setChatStreaming: (chatStreaming) => set({ chatStreaming }),
+  setHistoryList: (historyList) => set({ historyList }),
+  loadReport: (report, messages) => {
+    const [first, ...rest] = messages;
+    const summary = first?.role === 'assistant' ? first.content : '';
+    const remaining = first?.role === 'assistant' ? rest : messages;
+    set({ report, summary, messages: remaining });
+  },
+  clearReport: () => set({ report: null, summary: '', messages: [] }),
   reset: () => set(initial),
 }));
