@@ -40,6 +40,9 @@ Deno.serve(async (req) => {
       targetLang: parsed.data.target_language,
       deps: { visionApiKey, translateApiKey },
     });
+    if (!result.original_text || result.original_text.trim().length === 0) {
+      return json({ error: 'no_text_extracted' }, 422);
+    }
     return json(result, 200);
   } catch (e) {
     console.error('ocr-translate error', { message: (e as Error).message });
