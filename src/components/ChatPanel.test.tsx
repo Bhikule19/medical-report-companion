@@ -10,7 +10,7 @@ describe('ChatPanel', () => {
     const input = screen.getByLabelText(/your question/i);
     await userEvent.type(input, 'why is hba1c high?');
     await userEvent.click(screen.getByRole('button', { name: /send/i }));
-    expect(onSend).toHaveBeenCalledWith('why is hba1c high?');
+    expect(onSend).toHaveBeenCalledWith('why is hba1c high?', false);
     expect(input).toHaveValue('');
   });
 

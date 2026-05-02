@@ -15,6 +15,7 @@ import { HistorySidebar } from '@/components/HistorySidebar';
 import { useReportStore } from '@/store/useReportStore';
 import { ocrTranslate, OcrError } from '@/lib/api/ocrTranslate';
 import { chat } from '@/lib/api/chat';
+import { transcribeAudio, synthesizeSpeech } from '@/lib/api/voice';
 import { getSupabaseConfig } from '@/lib/env';
 import { useSession } from '@/lib/auth/useSession';
 import { getBrowserSupabase } from '@/lib/supabase/browserClient';
@@ -179,18 +180,31 @@ function HomeContent() {
     }
   }
 
-  async function handleSendChat(question: string) {
+  async function handleSendChat(question: string, voiceInput?: boolean) {
     if (!report || !session) return;
     const reportId = report.id;
     const userId = session.user.id;
     const store = useReportStore.getState();
     const history = store.messages;
-    const persistChat = consents.store_chat && reportId !== null;
+    const isVoiceMessage = !!voiceInput;
+    // Voice-originated user messages persist only when both store_chat AND
+    // store_voice_transcripts are on. Typed messages persist when store_chat is on.
+    const persistUserMessage =
+      consents.store_chat &&
+      reportId !== null &&
+      (!isVoiceMessage || consents.store_voice_transcripts);
+    const persistAssistantMessage = consents.store_chat && reportId !== null;
 
     store.appendUserMessage(question);
-    if (persistChat && reportId) {
+    if (persistUserMessage && reportId) {
       try {
-        await createMessage(supabase, { reportId, userId, role: 'user', content: question });
+        await createMessage(supabase, {
+          reportId,
+          userId,
+          role: 'user',
+          content: question,
+          voiceInput: isVoiceMessage,
+        });
       } catch (e) {
         console.error('save_user_message_failed', (e as Error).message);
       }
@@ -213,7 +227,12 @@ function HomeContent() {
       }
       const all = useReportStore.getState().messages;
       const last = all[all.length - 1];
-      if (persistChat && reportId && last?.role === 'assistant' && last.content.trim().length > 0) {
+      if (
+        persistAssistantMessage &&
+        reportId &&
+        last?.role === 'assistant' &&
+        last.content.trim().length > 0
+      ) {
         try {
           await createMessage(supabase, {
             reportId,
@@ -228,6 +247,32 @@ function HomeContent() {
     } finally {
       useReportStore.getState().setChatStreaming(false);
     }
+  }
+
+  async function handleTranscribe(blob: Blob): Promise<string> {
+    if (!session) return '';
+    try {
+      const result = await transcribeAudio({
+        blob,
+        language,
+        accessToken: session.access_token,
+        config,
+      });
+      return result.transcript;
+    } catch (e) {
+      console.error('transcribe_failed', (e as Error).message);
+      return '';
+    }
+  }
+
+  async function handleSpeak(text: string): Promise<Blob> {
+    if (!session) throw new Error('not_authenticated');
+    return await synthesizeSpeech({
+      text,
+      language,
+      accessToken: session.access_token,
+      config,
+    });
   }
 
   async function handleDeleteReport(id: string) {
@@ -316,11 +361,14 @@ function HomeContent() {
                 pageCount={report.pageCount}
                 sourceLang={report.sourceLang}
                 streaming={summaryStreaming}
+                onSpeak={handleSpeak}
               />
               <ChatPanel
                 messages={messages}
                 onSend={handleSendChat}
                 streaming={chatStreaming || summaryStreaming}
+                onTranscribe={handleTranscribe}
+                onSpeakAssistant={handleSpeak}
               />
             </div>
           )}
