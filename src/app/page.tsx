@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { LanguagePicker } from '@/components/LanguagePicker';
 import { UploadZone } from '@/components/UploadZone';
@@ -15,8 +16,9 @@ import { chat } from '@/lib/api/chat';
 import { getSupabaseConfig } from '@/lib/env';
 import { useSession } from '@/lib/auth/useSession';
 import { getBrowserSupabase } from '@/lib/supabase/browserClient';
-import { createReport, getReport, listReports } from '@/lib/db/reports';
+import { createReport, deleteReport, getReport, listReports } from '@/lib/db/reports';
 import { createMessage, listMessagesForReport } from '@/lib/db/messages';
+import { getConsents } from '@/lib/db/consents';
 import type { Language } from '@/lib/types';
 
 const config = getSupabaseConfig({
@@ -41,6 +43,8 @@ function HomeContent() {
   const messages = useReportStore((s) => s.messages);
   const chatStreaming = useReportStore((s) => s.chatStreaming);
   const historyList = useReportStore((s) => s.historyList);
+  const consents = useReportStore((s) => s.consents);
+  const setConsents = useReportStore((s) => s.setConsents);
 
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -63,6 +67,15 @@ function HomeContent() {
     if (session?.user?.id) refreshHistory(session.user.id);
   }, [session?.user?.id, refreshHistory]);
 
+  useEffect(() => {
+    if (!session?.user?.id) return;
+    getConsents(supabase, session.user.id)
+      .then(setConsents)
+      .catch(() => {
+        // Non-fatal: keep defaults (all on) so existing behaviour is preserved.
+      });
+  }, [session?.user?.id, supabase, setConsents]);
+
   function bounceToSignIn() {
     router.replace('/sign-in?error=session_expired');
   }
@@ -79,21 +92,23 @@ function HomeContent() {
         config,
       });
 
-      let reportId: string;
-      try {
-        const inserted = await createReport(supabase, {
-          userId: session.user.id,
-          title: deriveTitle(file),
-          extractedText: result.original_text,
-          translatedText: result.translated_text ?? null,
-          sourceLang: (result.source_language as Language) ?? null,
-          targetLang: language,
-          pageCount: result.page_count,
-        });
-        reportId = inserted.id;
-      } catch (e) {
-        setUploadError(`Couldn't save your report. ${(e as Error).message}`);
-        return;
+      let reportId: string | null = null;
+      if (consents.store_reports) {
+        try {
+          const inserted = await createReport(supabase, {
+            userId: session.user.id,
+            title: deriveTitle(file),
+            extractedText: result.original_text,
+            translatedText: result.translated_text ?? null,
+            sourceLang: (result.source_language as Language) ?? null,
+            targetLang: language,
+            pageCount: result.page_count,
+          });
+          reportId = inserted.id;
+        } catch (e) {
+          setUploadError(`Couldn't save your report. ${(e as Error).message}`);
+          return;
+        }
       }
 
       useReportStore.getState().setReport({
@@ -110,7 +125,7 @@ function HomeContent() {
         session.access_token,
         session.user.id,
       );
-      await refreshHistory(session.user.id);
+      if (consents.store_reports) await refreshHistory(session.user.id);
     } catch (e) {
       if (e instanceof OcrError && e.status === 401) return bounceToSignIn();
       if (e instanceof OcrError && e.status === 429 && e.retryAfterSeconds) {
@@ -124,7 +139,7 @@ function HomeContent() {
   }
 
   async function streamSummary(
-    reportId: string,
+    reportId: string | null,
     reportText: string,
     lang: Language,
     accessToken: string,
@@ -145,7 +160,7 @@ function HomeContent() {
         else if (ev.kind === 'error') store.appendSummary(`\n\n(error: ${ev.message})`);
       }
       const finalSummary = useReportStore.getState().summary;
-      if (finalSummary.trim().length > 0) {
+      if (reportId && finalSummary.trim().length > 0) {
         try {
           await createMessage(supabase, {
             reportId,
@@ -163,17 +178,20 @@ function HomeContent() {
   }
 
   async function handleSendChat(question: string) {
-    if (!report?.id || !session) return;
+    if (!report || !session) return;
     const reportId = report.id;
     const userId = session.user.id;
     const store = useReportStore.getState();
     const history = store.messages;
+    const persistChat = consents.store_chat && reportId !== null;
 
     store.appendUserMessage(question);
-    try {
-      await createMessage(supabase, { reportId, userId, role: 'user', content: question });
-    } catch (e) {
-      console.error('save_user_message_failed', (e as Error).message);
+    if (persistChat && reportId) {
+      try {
+        await createMessage(supabase, { reportId, userId, role: 'user', content: question });
+      } catch (e) {
+        console.error('save_user_message_failed', (e as Error).message);
+      }
     }
 
     store.setChatStreaming(true);
@@ -193,7 +211,7 @@ function HomeContent() {
       }
       const all = useReportStore.getState().messages;
       const last = all[all.length - 1];
-      if (last?.role === 'assistant' && last.content.trim().length > 0) {
+      if (persistChat && reportId && last?.role === 'assistant' && last.content.trim().length > 0) {
         try {
           await createMessage(supabase, {
             reportId,
@@ -208,6 +226,15 @@ function HomeContent() {
     } finally {
       useReportStore.getState().setChatStreaming(false);
     }
+  }
+
+  async function handleDeleteReport(id: string) {
+    if (!session) return;
+    await deleteReport(supabase, id);
+    if (report?.id === id) {
+      useReportStore.getState().clearReport();
+    }
+    await refreshHistory(session.user.id);
   }
 
   async function handleSelectHistory(id: string) {
@@ -239,6 +266,9 @@ function HomeContent() {
         <h1 className="text-2xl font-semibold">Medical Report Companion</h1>
         <div className="flex flex-wrap items-center gap-4">
           <LanguagePicker />
+          <Link href="/settings" className="text-sm text-slate-600 underline">
+            Settings
+          </Link>
           {session?.user?.email && <UserMenu email={session.user.email} />}
         </div>
       </header>
@@ -262,6 +292,7 @@ function HomeContent() {
           activeId={report?.id ?? null}
           onSelect={handleSelectHistory}
           onNew={() => useReportStore.getState().clearReport()}
+          onDelete={handleDeleteReport}
           disabled={streaming}
         />
 

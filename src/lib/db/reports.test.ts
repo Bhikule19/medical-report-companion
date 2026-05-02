@@ -1,15 +1,17 @@
 import { describe, it, expect, vi } from 'vitest';
-import { createReport, listReports, getReport } from './reports';
+import { createReport, listReports, getReport, deleteReport } from './reports';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 function makeChain(result: { data?: unknown; error?: unknown }) {
   const chain: Record<string, unknown> = {
     insert: vi.fn(() => chain),
     select: vi.fn(() => chain),
+    delete: vi.fn(() => chain),
     eq: vi.fn(() => chain),
     order: vi.fn(() => Promise.resolve(result)),
     single: vi.fn(() => Promise.resolve(result)),
     maybeSingle: vi.fn(() => Promise.resolve(result)),
+    then: (resolve: (r: unknown) => void) => Promise.resolve(result).then(resolve),
   };
   return chain;
 }
@@ -106,5 +108,24 @@ describe('getReport', () => {
     expect(client.from).toHaveBeenCalledWith('reports');
     expect(chain.eq).toHaveBeenCalledWith('id', 'r-1');
     expect(row.title).toBe('A');
+  });
+});
+
+describe('deleteReport', () => {
+  it('deletes the row by id and resolves', async () => {
+    const chain = makeChain({ data: null, error: null });
+    const client = fakeClient(chain);
+
+    await deleteReport(client, 'r-1');
+
+    expect(client.from).toHaveBeenCalledWith('reports');
+    expect(chain.delete).toHaveBeenCalled();
+    expect(chain.eq).toHaveBeenCalledWith('id', 'r-1');
+  });
+
+  it('throws when supabase returns an error', async () => {
+    const chain = makeChain({ data: null, error: { message: 'rls_denied' } });
+    const client = fakeClient(chain);
+    await expect(deleteReport(client, 'r-1')).rejects.toThrow(/rls_denied/);
   });
 });
