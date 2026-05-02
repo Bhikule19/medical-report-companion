@@ -79,3 +79,11 @@ export async function getReport(
   if (error) throw new Error(error.message);
   return data as ReportRow;
 }
+
+export async function deleteReport(
+  client: SupabaseClient,
+  reportId: string,
+): Promise<void> {
+  const { error } = await client.from('reports').delete().eq('id', reportId);
+  if (error) throw new Error(error.message);
+}
