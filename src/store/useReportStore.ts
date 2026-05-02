@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { ChatMessage, Language, Report } from '@/lib/types';
 import type { ReportSummaryRow } from '@/lib/db/reports';
+import { DEFAULT_CONSENTS, type ConsentValues } from '@/lib/db/consents';
 
 interface ReportState {
   language: Language;
@@ -10,6 +11,7 @@ interface ReportState {
   messages: ChatMessage[];
   chatStreaming: boolean;
   historyList: ReportSummaryRow[];
+  consents: ConsentValues;
 
   setLanguage: (lang: Language) => void;
   setReport: (report: Report) => void;
@@ -24,6 +26,7 @@ interface ReportState {
     messages: { role: 'user' | 'assistant'; content: string }[],
   ) => void;
   clearReport: () => void;
+  setConsents: (values: ConsentValues) => void;
   reset: () => void;
 }
 
@@ -35,6 +38,7 @@ const initial = {
   messages: [] as ChatMessage[],
   chatStreaming: false,
   historyList: [] as ReportSummaryRow[],
+  consents: DEFAULT_CONSENTS,
 };
 
 export const useReportStore = create<ReportState>((set) => ({
@@ -64,5 +68,6 @@ export const useReportStore = create<ReportState>((set) => ({
     set({ report, summary, messages: remaining });
   },
   clearReport: () => set({ report: null, summary: '', messages: [] }),
+  setConsents: (consents) => set({ consents }),
   reset: () => set(initial),
 }));

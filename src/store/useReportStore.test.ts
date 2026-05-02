@@ -121,3 +121,25 @@ describe('useReportStore — history additions', () => {
     expect(s.historyList).toHaveLength(1);
   });
 });
+
+describe('useReportStore — consents additions', () => {
+  beforeEach(() => useReportStore.getState().reset());
+
+  it('defaults consents to all-true', () => {
+    const s = useReportStore.getState();
+    expect(s.consents).toEqual({
+      store_reports: true,
+      store_chat: true,
+      store_voice_transcripts: true,
+    });
+  });
+
+  it('setConsents replaces consents', () => {
+    useReportStore.getState().setConsents({
+      store_reports: false,
+      store_chat: false,
+      store_voice_transcripts: true,
+    });
+    expect(useReportStore.getState().consents.store_reports).toBe(false);
+  });
+});
