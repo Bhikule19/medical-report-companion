@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from 'react';
 import type { ChatMessage as ChatMessageType } from '@/lib/types';
 import { ChatMessage } from './ChatMessage';
+import { ConfirmDialog } from './ConfirmDialog';
 import { VoiceInputButton } from './VoiceInputButton';
 
 export interface ChatPanelProps {
@@ -11,6 +12,7 @@ export interface ChatPanelProps {
   streaming: boolean;
   onTranscribe?: (blob: Blob) => Promise<string>;
   onSpeakAssistant?: (text: string) => Promise<Blob>;
+  onClear?: () => Promise<void>;
 }
 
 export function ChatPanel({
@@ -19,9 +21,13 @@ export function ChatPanel({
   streaming,
   onTranscribe,
   onSpeakAssistant,
+  onClear,
 }: ChatPanelProps) {
   const [draft, setDraft] = useState('');
   const [voiceOriginated, setVoiceOriginated] = useState(false);
+  const [clearOpen, setClearOpen] = useState(false);
+  const [clearPending, setClearPending] = useState(false);
+  const [clearError, setClearError] = useState<string | null>(null);
 
   function submit(e: FormEvent) {
     e.preventDefault();
@@ -45,9 +51,41 @@ export function ChatPanel({
     }
   }
 
+  async function handleConfirmClear() {
+    if (!onClear) return;
+    setClearPending(true);
+    setClearError(null);
+    try {
+      await onClear();
+      setClearOpen(false);
+    } catch (e) {
+      setClearError((e as Error).message);
+    } finally {
+      setClearPending(false);
+    }
+  }
+
+  const showClear = !!onClear && messages.length > 0;
+
   return (
     <section className="flex h-full flex-col rounded-lg bg-white p-6 shadow-sm">
-      <h2 className="mb-3 text-lg font-medium text-slate-800">Ask a question</h2>
+      <header className="mb-3 flex items-center justify-between">
+        <h2 className="text-lg font-medium text-slate-800">Ask a question</h2>
+        {showClear && (
+          <button
+            type="button"
+            onClick={() => {
+              if (streaming) return;
+              setClearError(null);
+              setClearOpen(true);
+            }}
+            disabled={streaming}
+            className="text-sm text-slate-600 underline hover:text-slate-900 disabled:opacity-50"
+          >
+            Clear chat
+          </button>
+        )}
+      </header>
       <div className="mb-4 flex flex-1 flex-col gap-3 overflow-y-auto">
         {messages.length === 0 && (
           <p className="text-sm text-slate-500">
@@ -81,6 +119,22 @@ export function ChatPanel({
           Send
         </button>
       </form>
+
+      <ConfirmDialog
+        open={clearOpen}
+        title="Clear this conversation?"
+        body="Your summary stays. Questions and replies will be permanently removed. This cannot be undone."
+        confirmLabel="Clear chat"
+        confirmTone="danger"
+        pending={clearPending}
+        error={clearError}
+        onConfirm={handleConfirmClear}
+        onCancel={() => {
+          if (clearPending) return;
+          setClearOpen(false);
+          setClearError(null);
+        }}
+      />
     </section>
   );
 }
