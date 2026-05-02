@@ -133,6 +133,12 @@ function HomeContent() {
       if (e instanceof OcrError && e.status === 401) return bounceToSignIn();
       if (e instanceof OcrError && e.status === 429 && e.retryAfterSeconds) {
         setUploadError(`Too many requests. Try again in ${e.retryAfterSeconds}s.`);
+      } else if (e instanceof OcrError && e.message === 'no_text_extracted') {
+        setUploadError(
+          "Couldn't read any text from this document. Please upload a clearer file or a digital PDF.",
+        );
+      } else if (e instanceof OcrError) {
+        setUploadError(`Upload failed: ${e.message}`);
       } else {
         setUploadError(e instanceof Error ? e.message : 'Upload failed');
       }

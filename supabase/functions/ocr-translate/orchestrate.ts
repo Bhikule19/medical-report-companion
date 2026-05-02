@@ -1,6 +1,6 @@
 import { detectLanguage } from './detect-lang.ts';
 import { probeDigitalPdf } from './pdf.ts';
-import { ocrViaVision } from './vision.ts';
+import { ocrViaVision, ocrPdfViaVision } from './vision.ts';
 import { translateWithGlossary } from './translate.ts';
 import type { Lang } from '../_shared/glossary.ts';
 
@@ -35,7 +35,9 @@ export async function orchestrate(input: OrchestrateInput): Promise<OrchestrateR
     if (probe.isDigital) {
       original = probe.text;
     } else {
-      original = await ocrViaVision(bytes.slice(), mimeType, {
+      // Scanned / image-only PDF — use Vision's files:annotate endpoint.
+      // Inline-content cap is 5 pages per call.
+      original = await ocrPdfViaVision(bytes.slice(), {
         apiKey: deps.visionApiKey,
         fetchImpl: deps.visionFetch,
       });
