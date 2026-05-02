@@ -8,6 +8,8 @@ import { UploadZone } from '@/components/UploadZone';
 import { ReportSummary } from '@/components/ReportSummary';
 import { ChatPanel } from '@/components/ChatPanel';
 import { AuthGate } from '@/components/AuthGate';
+import { ConsentGate } from '@/components/ConsentGate';
+import { Footer } from '@/components/Footer';
 import { UserMenu } from '@/components/UserMenu';
 import { HistorySidebar } from '@/components/HistorySidebar';
 import { useReportStore } from '@/store/useReportStore';
@@ -331,7 +333,10 @@ function HomeContent() {
 export default function Page() {
   return (
     <AuthGate>
-      <HomeContent />
+      <ConsentGate>
+        <HomeContent />
+        <Footer />
+      </ConsentGate>
     </AuthGate>
   );
 }
