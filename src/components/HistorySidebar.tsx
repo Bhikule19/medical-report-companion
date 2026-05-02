@@ -8,6 +8,7 @@ export interface HistorySidebarProps {
   activeId: string | null;
   onSelect: (id: string) => void;
   onNew: () => void;
+  onDelete?: (id: string) => Promise<void>;
   disabled: boolean;
 }
 
@@ -16,6 +17,7 @@ export function HistorySidebar({
   activeId,
   onSelect,
   onNew,
+  onDelete,
   disabled,
 }: HistorySidebarProps) {
   return (
@@ -42,6 +44,7 @@ export function HistorySidebar({
             active={item.id === activeId}
             disabled={disabled}
             onSelect={onSelect}
+            onDelete={onDelete}
           />
         ))}
       </div>

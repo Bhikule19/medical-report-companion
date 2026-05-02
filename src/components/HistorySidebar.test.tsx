@@ -77,4 +77,31 @@ describe('HistorySidebar', () => {
     expect(screen.getByRole('button', { name: /new report/i })).toBeDisabled();
     expect(screen.getByRole('button', { name: /CBC/ })).toBeDisabled();
   });
+
+  it('renders a delete button when onDelete prop is provided', () => {
+    render(
+      <HistorySidebar
+        items={[{ id: 'r-1', title: 'CBC', created_at: '2026-05-01T00:00:00Z', target_lang: 'hi' }]}
+        activeId={null}
+        onSelect={() => {}}
+        onNew={() => {}}
+        onDelete={async () => {}}
+        disabled={false}
+      />,
+    );
+    expect(screen.getByRole('button', { name: /delete report/i })).toBeInTheDocument();
+  });
+
+  it('does not render delete button when onDelete is omitted', () => {
+    render(
+      <HistorySidebar
+        items={[{ id: 'r-1', title: 'CBC', created_at: '2026-05-01T00:00:00Z', target_lang: 'hi' }]}
+        activeId={null}
+        onSelect={() => {}}
+        onNew={() => {}}
+        disabled={false}
+      />,
+    );
+    expect(screen.queryByRole('button', { name: /delete report/i })).not.toBeInTheDocument();
+  });
 });
