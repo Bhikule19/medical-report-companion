@@ -21,7 +21,7 @@ describe('ocrTranslate errors', () => {
     );
     const file = new File(['x'], 'r.pdf', { type: 'application/pdf' });
     await expect(
-      ocrTranslate({ file, targetLang: 'hi', config, fetchImpl }),
+      ocrTranslate({ file, targetLang: 'hi', accessToken: 'user-jwt', config, fetchImpl }),
     ).rejects.toMatchObject({ status: 429, retryAfterSeconds: 42 });
   });
 
@@ -31,7 +31,7 @@ describe('ocrTranslate errors', () => {
     );
     const file = new File(['x'], 'r.pdf', { type: 'application/pdf' });
     await expect(
-      ocrTranslate({ file, targetLang: 'hi', config, fetchImpl }),
+      ocrTranslate({ file, targetLang: 'hi', accessToken: 'user-jwt', config, fetchImpl }),
     ).rejects.toMatchObject({ status: 400, message: 'invalid_target_language' });
   });
 
@@ -39,13 +39,13 @@ describe('ocrTranslate errors', () => {
     const fetchImpl = vi.fn(async () => new Response('not json', { status: 500 }));
     const file = new File(['x'], 'r.pdf', { type: 'application/pdf' });
     await expect(
-      ocrTranslate({ file, targetLang: 'hi', config, fetchImpl }),
+      ocrTranslate({ file, targetLang: 'hi', accessToken: 'user-jwt', config, fetchImpl }),
     ).rejects.toMatchObject({ status: 500, message: 'ocr_failed_500' });
   });
 });
 
 describe('ocrTranslate happy path', () => {
-  it('posts multipart form-data and returns parsed result', async () => {
+  it('posts multipart form-data with session JWT and returns parsed result', async () => {
     const file = new File(['hi'], 'r.pdf', { type: 'application/pdf' });
     const fetchImpl = vi.fn(async () =>
       jsonResponse({
@@ -60,6 +60,7 @@ describe('ocrTranslate happy path', () => {
     const result = await ocrTranslate({
       file,
       targetLang: 'hi',
+      accessToken: 'user-jwt',
       config,
       fetchImpl,
     });
@@ -72,7 +73,7 @@ describe('ocrTranslate happy path', () => {
     expect(init.method).toBe('POST');
     expect(init.body).toBeInstanceOf(FormData);
     const headers = new Headers(init.headers);
-    expect(headers.get('Authorization')).toBe('Bearer anon');
+    expect(headers.get('Authorization')).toBe('Bearer user-jwt');
     expect(headers.get('apikey')).toBe('anon');
   });
 });

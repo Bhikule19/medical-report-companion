@@ -5,6 +5,7 @@ import { parseSseStream } from './sse';
 interface BaseInput {
   reportText: string;
   language: Language;
+  accessToken: string;
   config: SupabaseConfig;
   fetchImpl?: typeof fetch;
 }
@@ -35,7 +36,7 @@ export async function* chat(input: ChatInput): AsyncGenerator<ChatStreamEvent> {
   const res = await fetchFn(`${input.config.url}/functions/v1/chat`, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${input.config.anonKey}`,
+      Authorization: `Bearer ${input.accessToken}`,
       apikey: input.config.anonKey,
       'Content-Type': 'application/json',
     },

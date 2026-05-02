@@ -32,6 +32,7 @@ describe('chat (summary mode)', () => {
       mode: 'summary',
       reportText: 'r',
       language: 'hi',
+      accessToken: 'user-jwt',
       config,
       fetchImpl,
     })) {
@@ -52,6 +53,9 @@ describe('chat (summary mode)', () => {
       target_language: 'hi',
     });
     expect(body.history).toEqual([]);
+    const headers = new Headers(init.headers);
+    expect(headers.get('Authorization')).toBe('Bearer user-jwt');
+    expect(headers.get('apikey')).toBe('anon');
   });
 
   it('emits footer event before done', async () => {
@@ -67,6 +71,7 @@ describe('chat (summary mode)', () => {
       mode: 'chat',
       reportText: 'r',
       language: 'hi',
+      accessToken: 'user-jwt',
       history: [],
       question: 'why?',
       config,
@@ -90,6 +95,7 @@ describe('chat (summary mode)', () => {
       mode: 'summary',
       reportText: 'r',
       language: 'hi',
+      accessToken: 'user-jwt',
       config,
       fetchImpl,
     })) {
