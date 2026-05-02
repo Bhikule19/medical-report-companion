@@ -5,6 +5,7 @@ export interface CreateMessageInput {
   userId: string;
   role: 'user' | 'assistant';
   content: string;
+  voiceInput?: boolean;
 }
 
 export interface MessageRow {
@@ -25,7 +26,7 @@ export async function createMessage(
       user_id: input.userId,
       role: input.role,
       content: input.content,
-      voice_input: false,
+      voice_input: input.voiceInput ?? false,
     })
     .select('id')
     .single();
