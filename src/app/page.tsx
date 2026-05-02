@@ -266,6 +266,9 @@ function HomeContent() {
         <h1 className="text-2xl font-semibold">Medical Report Companion</h1>
         <div className="flex flex-wrap items-center gap-4">
           <LanguagePicker />
+          <Link href="/nearby" className="text-sm text-slate-600 underline">
+            Find nearby
+          </Link>
           <Link href="/settings" className="text-sm text-slate-600 underline">
             Settings
           </Link>
