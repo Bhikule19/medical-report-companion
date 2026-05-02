@@ -41,7 +41,7 @@ src/components/
 
 src/app/
   sign-in/page.tsx          full-screen sign-in
-  auth/callback/route.ts    GET route handler exchanging OAuth code for session
+  auth/callback/page.tsx    client component exchanging OAuth code for session on mount
   layout.tsx                unchanged (UserMenu mounted by page.tsx)
   page.tsx                  wraps existing UI in <AuthGate>
 ```
@@ -61,7 +61,7 @@ Edge Function changes:
 2. `/sign-in` renders `<SignInButton>`. Click calls `supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: ${origin}/auth/callback } })`.
 3. Browser hops to Google. User consents. Google redirects to `https://rrrtsssvoxgbwnyxewqc.supabase.co/auth/v1/callback?code=...`.
 4. Supabase exchanges the code, then redirects to our `redirectTo` URL with `?code=<exchange_code>`.
-5. `app/auth/callback/route.ts` runs `supabase.auth.exchangeCodeForSession(code)` (server-side, sets HTTP-only cookies as well as localStorage on the next client load), then `redirect('/')`.
+5. `app/auth/callback/page.tsx` (Client Component) reads `?code=` from `window.location` on mount, runs `supabase.auth.exchangeCodeForSession(code)` (browser-side, writes session to `localStorage`), then `router.replace('/')`. No server-side cookie handling needed because rendering is fully client-side.
 6. `<AuthGate>` now sees a session and renders the upload UI.
 
 **Authenticated request:**
@@ -79,7 +79,7 @@ Edge Function changes:
 | Failure | UX |
 |---|---|
 | OAuth flow cancelled / Google tab closed | Land back on `/sign-in`. No error state — user clicks again. |
-| OAuth exchange fails on `/auth/callback` (bad/expired code, network) | `route.ts` redirects to `/sign-in?error=oauth_failed`. Sign-in shows banner. |
+| OAuth exchange fails on `/auth/callback` (bad/expired code, network) | `callback/page.tsx` redirects to `/sign-in?error=oauth_failed`. Sign-in shows banner. |
 | Edge Function returns 401 (expired or missing JWT) | API client throws `AuthError`. Store flips `sessionExpired`. `<AuthGate>` re-checks; if expired, redirects to `/sign-in?error=session_expired`. |
 | Edge Function returns 429 | Existing handling unchanged. |
 | `getSessionToken()` returns null at request time (race with sign-out) | API call short-circuits with `NotAuthenticated`. Gate redirects. |
