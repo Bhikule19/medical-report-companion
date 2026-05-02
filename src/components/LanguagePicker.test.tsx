@@ -7,10 +7,10 @@ import { useReportStore } from '@/store/useReportStore';
 describe('LanguagePicker', () => {
   beforeEach(() => useReportStore.getState().reset());
 
-  it('renders all six languages', () => {
+  it('renders all 14 supported languages', () => {
     render(<LanguagePicker />);
     expect(screen.getByLabelText(/language/i)).toBeInTheDocument();
-    expect(screen.getAllByRole('option')).toHaveLength(6);
+    expect(screen.getAllByRole('option')).toHaveLength(14);
   });
 
   it('updates store on change', async () => {

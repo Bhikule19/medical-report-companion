@@ -8,6 +8,9 @@ export interface TtsDeps {
 // Deepgram Aura voices. English uses an Aura-2 voice; for Indian languages
 // Aura currently has limited coverage so we fall back to the English voice
 // while the user-facing copy is translated by the LLM upstream.
+// Aura is mostly English. Non-English languages fall back to the English voice
+// for now — user hears English-accented audio of text in their script.
+// Per-language Aura voice IDs are a polish task.
 const VOICE_BY_LANG: Record<Lang, string> = {
   en: 'aura-2-thalia-en',
   hi: 'aura-2-thalia-en',
@@ -15,6 +18,14 @@ const VOICE_BY_LANG: Record<Lang, string> = {
   te: 'aura-2-thalia-en',
   bn: 'aura-2-thalia-en',
   mr: 'aura-2-thalia-en',
+  es: 'aura-2-thalia-en',
+  fr: 'aura-2-thalia-en',
+  de: 'aura-2-thalia-en',
+  pt: 'aura-2-thalia-en',
+  ru: 'aura-2-thalia-en',
+  zh: 'aura-2-thalia-en',
+  ar: 'aura-2-thalia-en',
+  ja: 'aura-2-thalia-en',
 };
 
 export async function synthesize(

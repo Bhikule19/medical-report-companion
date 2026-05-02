@@ -155,6 +155,8 @@ function HomeContent() {
     userId: string,
   ) {
     const store = useReportStore.getState();
+    // Reset the summary before streaming so re-translation replaces (not appends).
+    useReportStore.setState({ summary: '' });
     store.setSummaryStreaming(true);
     try {
       for await (const ev of chat({
@@ -297,6 +299,9 @@ function HomeContent() {
         getReport(supabase, id),
         listMessagesForReport(supabase, id),
       ]);
+      // Reset the global language picker to the report's persisted target
+      // language so the UI matches what is on screen.
+      useReportStore.getState().setLanguage(row.target_lang as Language);
       useReportStore.getState().loadReport(
         {
           id: row.id,
@@ -311,6 +316,21 @@ function HomeContent() {
     }
   }
 
+  async function handleLanguageChange(nextLang: Language) {
+    // When a report is loaded, changing the language re-streams the summary
+    // in the new language. The persisted summary in the DB is unchanged;
+    // re-translation is session-only.
+    if (!report || !session) return;
+    if (summaryStreaming || chatStreaming) return;
+    await streamSummary(
+      report.id,
+      report.originalText,
+      nextLang,
+      session.access_token,
+      session.user.id,
+    );
+  }
+
   const streaming = summaryStreaming || chatStreaming || uploading;
 
   return (
@@ -318,7 +338,10 @@ function HomeContent() {
       <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-semibold">Medical Report Companion</h1>
         <div className="flex flex-wrap items-center gap-4">
-          <LanguagePicker />
+          <LanguagePicker
+            onChange={handleLanguageChange}
+            disabled={summaryStreaming || chatStreaming}
+          />
           <Link href="/nearby" className="text-sm text-slate-600 underline">
             Find nearby
           </Link>

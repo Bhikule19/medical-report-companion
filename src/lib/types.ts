@@ -1,4 +1,6 @@
-export type Language = 'en' | 'hi' | 'ta' | 'te' | 'bn' | 'mr';
+export type Language =
+  | 'en' | 'hi' | 'ta' | 'te' | 'bn' | 'mr'
+  | 'es' | 'fr' | 'de' | 'pt' | 'ru' | 'zh' | 'ar' | 'ja';
 
 export const LANGUAGES: { code: Language; label: string }[] = [
   { code: 'en', label: 'English' },
@@ -7,6 +9,14 @@ export const LANGUAGES: { code: Language; label: string }[] = [
   { code: 'te', label: 'తెలుగు' },
   { code: 'bn', label: 'বাংলা' },
   { code: 'mr', label: 'मराठी' },
+  { code: 'es', label: 'Español' },
+  { code: 'fr', label: 'Français' },
+  { code: 'de', label: 'Deutsch' },
+  { code: 'pt', label: 'Português' },
+  { code: 'ru', label: 'Русский' },
+  { code: 'zh', label: '中文' },
+  { code: 'ar', label: 'العربية' },
+  { code: 'ja', label: '日本語' },
 ];
 
 export interface Report {

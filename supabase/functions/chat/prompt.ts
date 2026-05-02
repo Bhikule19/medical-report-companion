@@ -13,6 +13,14 @@ const LANGUAGE_DIRECTIVES: Record<Lang, string> = {
   te: 'Respond in Telugu (తెలుగు). All your output must be in Telugu.',
   bn: 'Respond in Bengali (বাংলা). All your output must be in Bengali.',
   mr: 'Respond in Marathi (मराठी). All your output must be in Marathi.',
+  es: 'Respond in Spanish (español). All your output must be in Spanish.',
+  fr: 'Respond in French (français). All your output must be in French.',
+  de: 'Respond in German (Deutsch). All your output must be in German.',
+  pt: 'Respond in Portuguese (português). All your output must be in Portuguese.',
+  ru: 'Respond in Russian (русский). All your output must be in Russian.',
+  zh: 'Respond in Chinese (中文, simplified). All your output must be in Chinese.',
+  ar: 'Respond in Arabic (العربية). All your output must be in Arabic.',
+  ja: 'Respond in Japanese (日本語). All your output must be in Japanese.',
 };
 
 const SAFETY_RULES = [
