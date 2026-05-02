@@ -1,3 +1,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --font-scale: 1.125;
+}
+
+html {
+  font-size: calc(16px * var(--font-scale));
+}

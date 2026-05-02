@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { AuthGate } from '@/components/AuthGate';
 import { ConsentToggles } from '@/components/ConsentToggles';
+import { TextScalePicker } from '@/components/TextScalePicker';
 import { useSession } from '@/lib/auth/useSession';
 import { getBrowserSupabase } from '@/lib/supabase/browserClient';
 import {
@@ -12,6 +13,12 @@ import {
   DEFAULT_CONSENTS,
   type ConsentValues,
 } from '@/lib/db/consents';
+import {
+  loadTextScale,
+  saveTextScale,
+  applyTextScale,
+  type TextScale,
+} from '@/lib/display/textScale';
 import { useReportStore } from '@/store/useReportStore';
 
 function SettingsContent() {
@@ -23,6 +30,17 @@ function SettingsContent() {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [textScale, setTextScale] = useState<TextScale>('standard');
+
+  useEffect(() => {
+    setTextScale(loadTextScale());
+  }, []);
+
+  function handleScaleChange(next: TextScale) {
+    setTextScale(next);
+    saveTextScale(next);
+    applyTextScale(next);
+  }
 
   const load = useCallback(
     async (userId: string) => {
@@ -99,6 +117,17 @@ function SettingsContent() {
             {toast}
           </div>
         )}
+      </section>
+
+      <section className="rounded-lg bg-white p-6 shadow-sm">
+        <h2 className="text-lg font-medium text-slate-900">Display</h2>
+        <p className="mt-1 text-sm text-slate-600">
+          Make text bigger if it is hard to read. The change applies right away and
+          is remembered on this device.
+        </p>
+        <div className="mt-6">
+          <TextScalePicker value={textScale} onChange={handleScaleChange} />
+        </div>
       </section>
     </main>
   );
