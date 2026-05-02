@@ -8,6 +8,14 @@ const LANG_NAME: Record<Language, string> = {
   te: 'Telugu',
   bn: 'Bengali',
   mr: 'Marathi',
+  es: 'Spanish',
+  fr: 'French',
+  de: 'German',
+  pt: 'Portuguese',
+  ru: 'Russian',
+  zh: 'Chinese',
+  ar: 'Arabic',
+  ja: 'Japanese',
 };
 
 export interface ReportSummaryProps {
