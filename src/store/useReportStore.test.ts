@@ -20,6 +20,7 @@ describe('useReportStore', () => {
   it('setReport stores report and clears summary/messages', () => {
     useReportStore.setState({ summary: 'old', messages: [{ role: 'user', content: 'x' }] });
     useReportStore.getState().setReport({
+      id: 'r-1',
       originalText: 'r',
       pageCount: 2,
       sourceLang: 'en',
@@ -60,5 +61,63 @@ describe('useReportStore', () => {
       { role: 'user', content: 'q2' },
       { role: 'assistant', content: 'bc' },
     ]);
+  });
+});
+
+describe('useReportStore — history additions', () => {
+  beforeEach(() => useReportStore.getState().reset());
+
+  it('setHistoryList replaces the historyList', () => {
+    useReportStore.getState().setHistoryList([
+      { id: 'r-1', title: 'A', created_at: '1', target_lang: 'hi' },
+    ]);
+    expect(useReportStore.getState().historyList).toHaveLength(1);
+  });
+
+  it('loadReport hydrates report, summary, and remaining messages', () => {
+    useReportStore.getState().loadReport(
+      {
+        id: 'r-1',
+        originalText: 'orig',
+        pageCount: 2,
+        sourceLang: 'en',
+      },
+      [
+        { role: 'assistant', content: 'summary text' },
+        { role: 'user', content: 'q' },
+        { role: 'assistant', content: 'a' },
+      ],
+    );
+    const s = useReportStore.getState();
+    expect(s.report?.id).toBe('r-1');
+    expect(s.summary).toBe('summary text');
+    expect(s.messages).toEqual([
+      { role: 'user', content: 'q' },
+      { role: 'assistant', content: 'a' },
+    ]);
+  });
+
+  it('loadReport with empty messages leaves summary as empty string', () => {
+    useReportStore.getState().loadReport(
+      { id: 'r-1', originalText: 'o', pageCount: null, sourceLang: 'en' },
+      [],
+    );
+    expect(useReportStore.getState().summary).toBe('');
+    expect(useReportStore.getState().messages).toEqual([]);
+  });
+
+  it('clearReport removes report, summary, messages but keeps historyList', () => {
+    useReportStore.setState({
+      report: { id: 'r-1', originalText: 'o', pageCount: null, sourceLang: 'en' },
+      summary: 's',
+      messages: [{ role: 'user', content: 'q' }],
+      historyList: [{ id: 'r-1', title: 'A', created_at: '1', target_lang: 'hi' }],
+    });
+    useReportStore.getState().clearReport();
+    const s = useReportStore.getState();
+    expect(s.report).toBeNull();
+    expect(s.summary).toBe('');
+    expect(s.messages).toEqual([]);
+    expect(s.historyList).toHaveLength(1);
   });
 });

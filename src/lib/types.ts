@@ -10,6 +10,7 @@ export const LANGUAGES: { code: Language; label: string }[] = [
 ];
 
 export interface Report {
+  id: string | null;
   originalText: string;
   pageCount: number | null;
   sourceLang: Language;
