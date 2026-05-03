@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 import { AuthGate } from '@/components/AuthGate';
 import { ConsentToggles } from '@/components/ConsentToggles';
 import { TextScalePicker } from '@/components/TextScalePicker';
@@ -77,26 +78,33 @@ function SettingsContent() {
   }
 
   return (
-    <main className="mx-auto flex max-w-2xl flex-col gap-6 p-6">
-      <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Settings</h1>
-        <Link href="/" className="text-sm text-slate-600 underline">
+    <main className="mx-auto flex max-w-2xl flex-col gap-6 px-page-margin py-page-margin">
+      <header className="flex items-center justify-between border-b border-outline-variant pb-4">
+        <h1 className="font-display text-display text-on-surface">Settings</h1>
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-body-md text-on-surface-variant transition-colors hover:text-on-surface"
+        >
+          <ArrowLeft className="h-4 w-4" />
           Back
         </Link>
       </header>
 
-      <section className="rounded-lg bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-medium text-slate-900">Privacy</h2>
-        <p className="mt-1 text-sm text-slate-600">
+      <section className="rounded-lg border border-outline-variant bg-surface-container-lowest p-card-pad shadow-card">
+        <h2 className="font-display text-headline text-on-surface">Privacy</h2>
+        <p className="mt-2 text-body-md text-on-surface-variant">
           Choose what gets saved to your account. Changes apply immediately.
         </p>
 
         {loadError && (
-          <div role="alert" className="mt-4 rounded-md bg-red-50 p-3 text-sm text-red-800">
+          <div
+            role="alert"
+            className="mt-4 rounded-md bg-error-container p-3 text-body-md text-on-error-container"
+          >
             Couldn&apos;t load your settings: {loadError}{' '}
             <button
               type="button"
-              className="underline"
+              className="font-medium underline"
               onClick={() => session?.user?.id && load(session.user.id)}
             >
               Retry
@@ -113,15 +121,18 @@ function SettingsContent() {
         </div>
 
         {toast && (
-          <div role="status" className="mt-4 rounded-md bg-amber-50 p-3 text-sm text-amber-800">
+          <div
+            role="status"
+            className="mt-4 rounded-md border border-tertiary-container bg-tertiary-container/30 p-3 text-body-md text-on-tertiary-container"
+          >
             {toast}
           </div>
         )}
       </section>
 
-      <section className="rounded-lg bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-medium text-slate-900">Display</h2>
-        <p className="mt-1 text-sm text-slate-600">
+      <section className="rounded-lg border border-outline-variant bg-surface-container-lowest p-card-pad shadow-card">
+        <h2 className="font-display text-headline text-on-surface">Display</h2>
+        <p className="mt-2 text-body-md text-on-surface-variant">
           Make text bigger if it is hard to read. The change applies right away and
           is remembered on this device.
         </p>

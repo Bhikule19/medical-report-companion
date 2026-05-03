@@ -39,17 +39,20 @@ export function ConsentToggles({ values, disabled, onChange }: ConsentTogglesPro
   return (
     <div className="flex flex-col gap-5">
       {TOGGLES.map((t) => (
-        <label key={t.key} className="flex items-start gap-3">
+        <label
+          key={t.key}
+          className="flex cursor-pointer items-start gap-3 rounded-md p-2 transition-colors hover:bg-surface-container-low"
+        >
           <input
             type="checkbox"
             checked={values[t.key]}
             disabled={disabled}
             onChange={(e) => onChange(t.key, e.target.checked)}
-            className="mt-1 h-5 w-5 rounded border-slate-300 disabled:opacity-50"
+            className="mt-1 h-5 w-5 cursor-pointer rounded border-outline-variant accent-secondary disabled:opacity-50"
           />
-          <span className="flex flex-col">
-            <span className="text-base font-medium text-slate-900">{t.label}</span>
-            <span className="text-sm text-slate-600">{t.description}</span>
+          <span className="flex flex-col gap-1">
+            <span className="text-body-md font-medium text-on-surface">{t.label}</span>
+            <span className="text-body-md text-on-surface-variant">{t.description}</span>
           </span>
         </label>
       ))}

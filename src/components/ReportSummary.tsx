@@ -36,8 +36,8 @@ export function ReportSummary({
   const canSpeak = !streaming && summary.trim().length > 0 && onSpeak !== undefined;
 
   return (
-    <section className="rounded-lg bg-white p-6 shadow-sm">
-      <header className="mb-3 flex items-center justify-between text-sm text-slate-500">
+    <section className="rounded-lg border border-outline-variant bg-surface-container-lowest p-6 shadow-card">
+      <header className="mb-4 flex items-center justify-between text-label-caps uppercase tracking-wider text-on-surface-variant">
         <span>Source: {LANG_NAME[sourceLang]}</span>
         <div className="flex items-center gap-2">
           {pageCount != null && (
@@ -48,12 +48,12 @@ export function ReportSummary({
           {canSpeak && onSpeak && <SpeakButton text={summary} onPlay={onSpeak} />}
         </div>
       </header>
-      <div className="whitespace-pre-wrap text-base leading-relaxed text-slate-800">
+      <div className="whitespace-pre-wrap text-body-lg text-on-surface">
         {summary}
         {streaming && (
           <span
             aria-label="Generating summary"
-            className="ml-1 inline-block h-4 w-2 animate-pulse bg-slate-400 align-middle"
+            className="ml-1 inline-block h-[1em] w-[2px] translate-y-[2px] animate-pulse bg-secondary align-baseline"
           />
         )}
       </div>

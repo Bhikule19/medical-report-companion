@@ -2,10 +2,71 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Material 3 inspired light-mode palette. Each variable holds an RGB triplet
+ * (no commas, no rgb() wrapper) so Tailwind can compose alpha values via
+ * `rgb(var(--color-...) / <alpha-value>)` in the theme config.
+ */
 :root {
   --font-scale: 1.125;
+
+  --color-surface: 251 249 250;
+  --color-surface-dim: 219 217 219;
+  --color-surface-bright: 251 249 250;
+  --color-surface-container-lowest: 255 255 255;
+  --color-surface-container-low: 245 243 245;
+  --color-surface-container: 239 237 239;
+  --color-surface-container-high: 234 231 233;
+  --color-surface-container-highest: 228 226 228;
+  --color-surface-variant: 228 226 228;
+
+  --color-on-surface: 27 27 29;
+  --color-on-surface-variant: 68 71 76;
+
+  --color-outline: 117 119 125;
+  --color-outline-variant: 197 198 205;
+
+  --color-primary: 29 43 62;
+  --color-on-primary: 255 255 255;
+  --color-primary-container: 51 65 85;
+  --color-on-primary-container: 158 173 197;
+
+  --color-secondary: 0 106 97;
+  --color-on-secondary: 255 255 255;
+  --color-secondary-container: 134 242 228;
+  --color-on-secondary-container: 0 111 102;
+
+  --color-tertiary: 56 39 10;
+  --color-on-tertiary: 255 255 255;
+  --color-tertiary-container: 80 61 30;
+  --color-on-tertiary-container: 195 168 129;
+
+  --color-error: 186 26 26;
+  --color-on-error: 255 255 255;
+  --color-error-container: 255 218 214;
+  --color-on-error-container: 147 0 10;
+
+  /* Brighter teal for focus rings — readable against light surfaces. */
+  --color-accent: 13 148 136;
 }
 
 html {
   font-size: calc(16px * var(--font-scale));
+}
+
+body {
+  font-family:
+    var(--font-inter),
+    system-ui,
+    -apple-system,
+    sans-serif;
+  color: rgb(var(--color-on-surface));
+  background-color: rgb(var(--color-surface));
+}
+
+/* Focus rings: visible by default for keyboard users. */
+:focus-visible {
+  outline: 2px solid rgb(var(--color-accent));
+  outline-offset: 2px;
+  border-radius: 0.25rem;
 }

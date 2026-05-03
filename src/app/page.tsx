@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { MapPin, Settings as SettingsIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { LanguagePicker } from '@/components/LanguagePicker';
 import { UploadZone } from '@/components/UploadZone';
@@ -345,79 +347,236 @@ function HomeContent() {
   const streaming = summaryStreaming || chatStreaming || uploading;
 
   return (
-    <main className="mx-auto flex max-w-7xl flex-col gap-6 p-6">
-      <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-semibold">Medical Report Companion</h1>
-        <div className="flex flex-wrap items-center gap-4">
-          <LanguagePicker
-            onChange={handleLanguageChange}
-            disabled={summaryStreaming || chatStreaming}
-          />
-          <Link href="/nearby" className="text-sm text-slate-600 underline">
-            Find nearby
+    <div className="min-h-screen bg-surface">
+      <header className="sticky top-0 z-30 border-b border-outline-variant/60 bg-surface/85 backdrop-blur-md">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-page-margin py-4">
+          <Link href="/" className="flex items-center gap-2.5">
+            <span
+              aria-hidden
+              className="grid h-8 w-8 place-items-center rounded-md bg-primary-container text-on-primary"
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-secondary-container" />
+            </span>
+            <span className="font-display text-body-lg font-semibold text-on-surface">
+              Medical Report Companion
+            </span>
           </Link>
-          <Link href="/settings" className="text-sm text-slate-600 underline">
-            Settings
-          </Link>
-          {session?.user?.email && <UserMenu email={session.user.email} />}
+          <div className="flex flex-wrap items-center gap-3 sm:gap-5">
+            <LanguagePicker
+              onChange={handleLanguageChange}
+              disabled={summaryStreaming || chatStreaming}
+            />
+            <Link
+              href="/nearby"
+              className="inline-flex items-center gap-2 rounded-md border border-outline-variant bg-surface-container-lowest px-3 py-2 text-body-md font-medium text-on-surface transition-all hover:-translate-y-px hover:border-outline hover:bg-surface-container-low hover:shadow-card"
+            >
+              <MapPin className="h-4 w-4 text-secondary" aria-hidden />
+              <span className="hidden sm:inline">Find nearby</span>
+            </Link>
+            <Link
+              href="/settings"
+              className="inline-flex items-center gap-2 rounded-md border border-outline-variant bg-surface-container-lowest px-3 py-2 text-body-md font-medium text-on-surface transition-all hover:-translate-y-px hover:border-outline hover:bg-surface-container-low hover:shadow-card"
+            >
+              <SettingsIcon className="h-4 w-4 text-secondary" aria-hidden />
+              <span className="hidden sm:inline">Settings</span>
+            </Link>
+            {session?.user?.email && (
+              <UserMenu
+                email={session.user.email}
+                name={
+                  (session.user.user_metadata?.full_name as string | undefined) ??
+                  (session.user.user_metadata?.name as string | undefined) ??
+                  null
+                }
+                avatarUrl={
+                  (session.user.user_metadata?.avatar_url as string | undefined) ?? null
+                }
+              />
+            )}
+          </div>
         </div>
       </header>
 
-      {historyError && (
-        <div role="alert" className="rounded-md bg-amber-50 p-3 text-sm text-amber-800">
-          Couldn&apos;t load history: {historyError}{' '}
-          <button
-            type="button"
-            className="underline"
-            onClick={() => session?.user?.id && refreshHistory(session.user.id)}
+      <main className="mx-auto max-w-7xl px-page-margin py-page-margin">
+        {historyError && (
+          <div
+            role="alert"
+            className="mb-6 rounded-md border border-tertiary-container bg-tertiary-container/30 p-3 text-body-md text-on-tertiary-container"
           >
-            Retry
-          </button>
-        </div>
-      )}
+            Couldn&apos;t load history: {historyError}{' '}
+            <button
+              type="button"
+              className="font-medium underline"
+              onClick={() => session?.user?.id && refreshHistory(session.user.id)}
+            >
+              Retry
+            </button>
+          </div>
+        )}
 
-      <div className="grid gap-6 lg:grid-cols-[18rem_1fr]">
-        <HistorySidebar
-          items={historyList}
-          activeId={report?.id ?? null}
-          onSelect={handleSelectHistory}
-          onNew={() => useReportStore.getState().clearReport()}
-          onDelete={handleDeleteReport}
-          disabled={streaming}
-        />
-
-        <div className="flex flex-col gap-6">
-          {!report && <UploadZone onFile={handleFile} disabled={uploading} />}
-          {uploading && <p className="text-sm text-slate-600">Reading your report…</p>}
-          {uploadError && (
-            <div role="alert" className="rounded-md bg-red-50 p-4 text-red-800">
-              {uploadError}
-            </div>
-          )}
-          {report && (
-            <div className="grid gap-6 lg:grid-cols-2">
-              <ReportSummary
-                summary={summary}
-                pageCount={report.pageCount}
-                sourceLang={report.sourceLang}
-                streaming={summaryStreaming}
-                onSpeak={handleSpeak}
-              />
-              <ChatPanel
-                messages={messages}
-                onSend={handleSendChat}
-                streaming={chatStreaming || summaryStreaming}
-                onTranscribe={handleTranscribe}
-                onSpeakAssistant={handleSpeak}
-                onClear={handleClearChat}
-              />
-            </div>
-          )}
-        </div>
-      </div>
-    </main>
+        {!report ? (
+          <EmptyState
+            uploading={uploading}
+            uploadError={uploadError}
+            onFile={handleFile}
+            historyList={historyList}
+            activeId={null}
+            onSelect={handleSelectHistory}
+            onNew={() => useReportStore.getState().clearReport()}
+            onDelete={handleDeleteReport}
+            streaming={streaming}
+          />
+        ) : (
+          <LoadedState
+            historyList={historyList}
+            report={report}
+            summary={summary}
+            summaryStreaming={summaryStreaming}
+            messages={messages}
+            chatStreaming={chatStreaming}
+            onSelect={handleSelectHistory}
+            onNew={() => useReportStore.getState().clearReport()}
+            onDelete={handleDeleteReport}
+            streaming={streaming}
+            onSendChat={handleSendChat}
+            onTranscribe={handleTranscribe}
+            onSpeak={handleSpeak}
+            onClearChat={handleClearChat}
+          />
+        )}
+      </main>
+    </div>
   );
 }
+
+interface EmptyStateProps {
+  uploading: boolean;
+  uploadError: string | null;
+  onFile: (file: File) => void;
+  historyList: ReturnType<typeof useReportStore.getState>['historyList'];
+  activeId: string | null;
+  onSelect: (id: string) => void;
+  onNew: () => void;
+  onDelete: (id: string) => Promise<void>;
+  streaming: boolean;
+}
+
+function EmptyState(props: EmptyStateProps) {
+  return (
+    <div className="grid gap-10 lg:grid-cols-[18rem_1fr]">
+      <HistorySidebar
+        items={props.historyList}
+        activeId={props.activeId}
+        onSelect={props.onSelect}
+        onNew={props.onNew}
+        onDelete={props.onDelete}
+        disabled={props.streaming}
+      />
+
+      <motion.section
+        initial="hidden"
+        animate="visible"
+        variants={{
+          hidden: {},
+          visible: { transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
+        }}
+        className="flex flex-col gap-6"
+      >
+        <motion.p
+          variants={fadeUp}
+          className="text-label-caps uppercase tracking-wider text-secondary"
+        >
+          A calm way to read medical reports
+        </motion.p>
+        <motion.h1
+          variants={fadeUp}
+          className="font-display text-display text-on-surface lg:text-[2.75rem] lg:leading-[1.1]"
+        >
+          Understand your report,
+          <br />
+          <span className="text-on-surface-variant">in plain words.</span>
+        </motion.h1>
+        <motion.p variants={fadeUp} className="max-w-xl text-body-lg text-on-surface-variant">
+          Upload a PDF or photo of a medical report. We will explain what each value
+          means in your language. You can ask follow-up questions and listen to the
+          answer.
+        </motion.p>
+
+        <motion.div variants={fadeUp} className="mt-2">
+          <UploadZone onFile={props.onFile} disabled={props.uploading} />
+        </motion.div>
+
+        {props.uploading && (
+          <p className="text-body-md text-on-surface-variant">Reading your report…</p>
+        )}
+
+        {props.uploadError && (
+          <div
+            role="alert"
+            className="rounded-md bg-error-container p-4 text-body-md text-on-error-container"
+          >
+            {props.uploadError}
+          </div>
+        )}
+      </motion.section>
+    </div>
+  );
+}
+
+interface LoadedStateProps {
+  historyList: ReturnType<typeof useReportStore.getState>['historyList'];
+  report: NonNullable<ReturnType<typeof useReportStore.getState>['report']>;
+  summary: string;
+  summaryStreaming: boolean;
+  messages: ReturnType<typeof useReportStore.getState>['messages'];
+  chatStreaming: boolean;
+  onSelect: (id: string) => void;
+  onNew: () => void;
+  onDelete: (id: string) => Promise<void>;
+  streaming: boolean;
+  onSendChat: (question: string, voiceInput?: boolean) => void;
+  onTranscribe: (blob: Blob) => Promise<string>;
+  onSpeak: (text: string) => Promise<Blob>;
+  onClearChat: () => Promise<void>;
+}
+
+function LoadedState(props: LoadedStateProps) {
+  return (
+    <div className="grid gap-8 lg:grid-cols-[16rem_1fr]">
+      <HistorySidebar
+        items={props.historyList}
+        activeId={props.report.id ?? null}
+        onSelect={props.onSelect}
+        onNew={props.onNew}
+        onDelete={props.onDelete}
+        disabled={props.streaming}
+      />
+
+      <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
+        <ReportSummary
+          summary={props.summary}
+          pageCount={props.report.pageCount}
+          sourceLang={props.report.sourceLang}
+          streaming={props.summaryStreaming}
+          onSpeak={props.onSpeak}
+        />
+        <ChatPanel
+          messages={props.messages}
+          onSend={props.onSendChat}
+          streaming={props.chatStreaming || props.summaryStreaming}
+          onTranscribe={props.onTranscribe}
+          onSpeakAssistant={props.onSpeak}
+          onClear={props.onClearChat}
+        />
+      </div>
+    </div>
+  );
+}
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 12 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] as const } },
+};
 
 export default function Page() {
   return (

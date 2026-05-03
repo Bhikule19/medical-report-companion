@@ -14,7 +14,7 @@ describe('HistorySidebar', () => {
         disabled={false}
       />,
     );
-    expect(screen.getByText(/no past reports/i)).toBeInTheDocument();
+    expect(screen.getByText(/nothing here yet/i)).toBeInTheDocument();
   });
 
   it('renders one item per row, falling back to "Report from <date>" when title is null', () => {
