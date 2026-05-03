@@ -31,29 +31,47 @@ export function HistoryItem({
 
   return (
     <motion.div
+      layout
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
       className={cn(
-        'group flex items-start gap-2 rounded-md border px-3 py-2.5 transition-all',
+        'group relative flex items-start gap-2 rounded-md py-2.5 pl-4 pr-2 transition-colors',
         active
-          ? 'border-secondary bg-secondary-container/40 shadow-card'
-          : 'border-outline-variant bg-surface-container-lowest hover:-translate-y-px hover:border-outline hover:shadow-card',
+          ? 'bg-secondary-container/50'
+          : 'hover:bg-surface-container-low',
       )}
     >
+      {active && (
+        <motion.span
+          layoutId="history-active-bar"
+          aria-hidden
+          className="absolute inset-y-2 left-0 w-[3px] rounded-full bg-secondary"
+          transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+        />
+      )}
       <button
         type="button"
         onClick={() => onSelect(item.id)}
         disabled={disabled}
         className="flex flex-1 flex-col items-start text-left disabled:opacity-50"
       >
-        <span className="text-body-md font-medium text-on-surface">{label}</span>
+        <span
+          className={cn(
+            'text-body-md font-medium',
+            active ? 'text-on-surface' : 'text-on-surface',
+          )}
+        >
+          {label}
+        </span>
         <span className="text-label-caps text-on-surface-variant normal-case tracking-normal">
           {time}
         </span>
       </button>
       {onDelete && (
-        <DeleteReportButton onDelete={() => onDelete(item.id)} disabled={disabled} />
+        <div className={cn('opacity-0 transition-opacity group-hover:opacity-100', active && 'opacity-100')}>
+          <DeleteReportButton onDelete={() => onDelete(item.id)} disabled={disabled} />
+        </div>
       )}
     </motion.div>
   );
