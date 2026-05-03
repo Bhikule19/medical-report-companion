@@ -345,18 +345,26 @@ function HomeContent() {
   const streaming = summaryStreaming || chatStreaming || uploading;
 
   return (
-    <main className="mx-auto flex max-w-7xl flex-col gap-6 p-6">
-      <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-semibold">Medical Report Companion</h1>
+    <main className="mx-auto flex max-w-7xl flex-col gap-6 px-page-margin py-page-margin">
+      <header className="flex flex-col gap-4 border-b border-outline-variant pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="font-display text-headline text-on-surface">
+          Medical Report Companion
+        </h1>
         <div className="flex flex-wrap items-center gap-4">
           <LanguagePicker
             onChange={handleLanguageChange}
             disabled={summaryStreaming || chatStreaming}
           />
-          <Link href="/nearby" className="text-sm text-slate-600 underline">
+          <Link
+            href="/nearby"
+            className="text-body-md text-on-surface-variant underline transition-colors hover:text-on-surface"
+          >
             Find nearby
           </Link>
-          <Link href="/settings" className="text-sm text-slate-600 underline">
+          <Link
+            href="/settings"
+            className="text-body-md text-on-surface-variant underline transition-colors hover:text-on-surface"
+          >
             Settings
           </Link>
           {session?.user?.email && <UserMenu email={session.user.email} />}
@@ -364,11 +372,14 @@ function HomeContent() {
       </header>
 
       {historyError && (
-        <div role="alert" className="rounded-md bg-amber-50 p-3 text-sm text-amber-800">
+        <div
+          role="alert"
+          className="rounded-md border border-tertiary-container bg-tertiary-container/30 p-3 text-body-md text-on-tertiary-container"
+        >
           Couldn&apos;t load history: {historyError}{' '}
           <button
             type="button"
-            className="underline"
+            className="font-medium underline"
             onClick={() => session?.user?.id && refreshHistory(session.user.id)}
           >
             Retry
@@ -388,9 +399,14 @@ function HomeContent() {
 
         <div className="flex flex-col gap-6">
           {!report && <UploadZone onFile={handleFile} disabled={uploading} />}
-          {uploading && <p className="text-sm text-slate-600">Reading your report…</p>}
+          {uploading && (
+            <p className="text-body-md text-on-surface-variant">Reading your report…</p>
+          )}
           {uploadError && (
-            <div role="alert" className="rounded-md bg-red-50 p-4 text-red-800">
+            <div
+              role="alert"
+              className="rounded-md bg-error-container p-4 text-body-md text-on-error-container"
+            >
               {uploadError}
             </div>
           )}

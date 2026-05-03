@@ -29,18 +29,20 @@ export function HistoryItem({
     <div
       className={`flex items-start gap-2 rounded-md border px-3 py-2 transition-colors ${
         active
-          ? 'border-slate-700 bg-slate-100'
-          : 'border-slate-200 bg-white hover:border-slate-400'
+          ? 'border-secondary bg-secondary-container/40'
+          : 'border-outline-variant bg-surface-container-lowest hover:border-outline'
       }`}
     >
       <button
         type="button"
         onClick={() => onSelect(item.id)}
         disabled={disabled}
-        className="flex flex-1 flex-col items-start text-left text-sm disabled:opacity-50"
+        className="flex flex-1 flex-col items-start text-left disabled:opacity-50"
       >
-        <span className="font-medium text-slate-800">{label}</span>
-        <span className="text-xs text-slate-500">{time}</span>
+        <span className="text-body-md font-medium text-on-surface">{label}</span>
+        <span className="text-label-caps text-on-surface-variant normal-case tracking-normal">
+          {time}
+        </span>
       </button>
       {onDelete && (
         <DeleteReportButton onDelete={() => onDelete(item.id)} disabled={disabled} />

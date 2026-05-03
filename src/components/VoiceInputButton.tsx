@@ -61,10 +61,10 @@ export function VoiceInputButton({ disabled, onTranscribe }: VoiceInputButtonPro
       disabled={disabled || busy}
       aria-label={label}
       title={label}
-      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-md border text-base transition-colors disabled:opacity-50 ${
+      className={`flex h-touch-target w-touch-target shrink-0 items-center justify-center rounded-md border transition-colors disabled:opacity-50 ${
         recording
-          ? 'border-red-400 bg-red-50 text-red-700 hover:bg-red-100'
-          : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-100'
+          ? 'border-error bg-error-container text-on-error-container hover:bg-error-container/80'
+          : 'border-outline-variant bg-surface-container-lowest text-on-surface hover:border-outline hover:bg-surface-container-low'
       }`}
     >
       {busy ? <Spinner /> : recording ? <StopIcon /> : <MicIcon />}

@@ -25,10 +25,10 @@ export function NearbyTypeFilter({ value, onChange }: NearbyTypeFilterProps) {
             onClick={() => {
               if (!active) onChange(opt.value);
             }}
-            className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+            className={`rounded-full px-5 py-2 text-body-md font-medium transition-colors ${
               active
-                ? 'bg-slate-800 text-white'
-                : 'bg-white text-slate-700 border border-slate-300 hover:border-slate-400'
+                ? 'bg-primary-container text-on-primary'
+                : 'border border-outline-variant bg-surface-container-lowest text-on-surface hover:border-outline'
             }`}
           >
             {opt.label}

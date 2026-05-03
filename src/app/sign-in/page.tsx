@@ -15,14 +15,19 @@ function SignInContent() {
   const errorMessage = errorKey ? ERROR_MESSAGES[errorKey] : null;
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-slate-50 p-6">
-      <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-sm">
-        <h1 className="text-2xl font-semibold text-slate-900">Medical Report Companion</h1>
-        <p className="mt-2 text-sm text-slate-600">
+    <main className="flex min-h-screen flex-col items-center justify-center bg-surface p-6">
+      <div className="w-full max-w-md rounded-lg border border-outline-variant bg-surface-container-lowest p-8 shadow-card">
+        <h1 className="font-display text-headline text-on-surface">
+          Medical Report Companion
+        </h1>
+        <p className="mt-2 text-body-md text-on-surface-variant">
           Sign in to upload a report and chat about it.
         </p>
         {errorMessage && (
-          <div role="alert" className="mt-4 rounded-md bg-red-50 p-3 text-sm text-red-800">
+          <div
+            role="alert"
+            className="mt-4 rounded-md bg-error-container p-3 text-body-md text-on-error-container"
+          >
             {errorMessage}
           </div>
         )}

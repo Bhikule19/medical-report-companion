@@ -26,10 +26,10 @@ export function TextScalePicker({ value, onChange }: TextScalePickerProps) {
             onClick={() => {
               if (!active) onChange(scale);
             }}
-            className={`rounded-md border px-4 py-2 text-sm font-medium transition-colors ${
+            className={`rounded-md border px-5 py-2 text-body-md font-medium transition-colors ${
               active
-                ? 'border-slate-700 bg-slate-800 text-white'
-                : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400'
+                ? 'border-secondary bg-secondary text-on-secondary'
+                : 'border-outline-variant bg-surface-container-lowest text-on-surface hover:border-outline'
             }`}
           >
             {LABELS[scale]}

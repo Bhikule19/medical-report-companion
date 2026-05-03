@@ -12,12 +12,12 @@ export function UserMenu({ email }: { email: string }) {
   }
 
   return (
-    <div className="flex items-center gap-3 text-sm text-slate-700">
-      <span>{email}</span>
+    <div className="flex items-center gap-3 text-body-md text-on-surface-variant">
+      <span className="hidden sm:inline">{email}</span>
       <button
         type="button"
         onClick={handleSignOut}
-        className="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100"
+        className="rounded-md border border-outline-variant px-3 py-1.5 text-body-md text-on-surface transition-colors hover:bg-surface-container"
       >
         Sign out
       </button>

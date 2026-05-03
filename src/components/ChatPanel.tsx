@@ -68,9 +68,9 @@ export function ChatPanel({
   const showClear = !!onClear && messages.length > 0;
 
   return (
-    <section className="flex h-full flex-col rounded-lg bg-white p-6 shadow-sm">
-      <header className="mb-3 flex items-center justify-between">
-        <h2 className="text-lg font-medium text-slate-800">Ask a question</h2>
+    <section className="flex h-full flex-col rounded-lg border border-outline-variant bg-surface-container-lowest p-6 shadow-card">
+      <header className="mb-4 flex items-center justify-between">
+        <h2 className="font-display text-headline text-on-surface">Ask a question</h2>
         {showClear && (
           <button
             type="button"
@@ -80,7 +80,7 @@ export function ChatPanel({
               setClearOpen(true);
             }}
             disabled={streaming}
-            className="text-sm text-slate-600 underline hover:text-slate-900 disabled:opacity-50"
+            className="text-body-md text-on-surface-variant underline transition-colors hover:text-on-surface disabled:opacity-50"
           >
             Clear chat
           </button>
@@ -88,7 +88,7 @@ export function ChatPanel({
       </header>
       <div className="mb-4 flex flex-1 flex-col gap-3 overflow-y-auto">
         {messages.length === 0 && (
-          <p className="text-sm text-slate-500">
+          <p className="text-body-md text-on-surface-variant">
             Ask anything about your report. The assistant uses only the report contents.
           </p>
         )}
@@ -96,13 +96,13 @@ export function ChatPanel({
           <ChatMessage key={i} message={m} onSpeak={onSpeakAssistant} />
         ))}
       </div>
-      <form onSubmit={submit} className="flex gap-2">
+      <form onSubmit={submit} className="flex items-center gap-2">
         {onTranscribe && (
           <VoiceInputButton disabled={streaming} onTranscribe={handleTranscribe} />
         )}
         <input
           aria-label="Your question"
-          className="flex-1 rounded-md border border-slate-300 px-3 py-2 text-base focus:border-slate-500 focus:outline-none disabled:bg-slate-100"
+          className="flex-1 rounded-md border border-outline-variant bg-surface-container-lowest px-3 py-2 text-body-md text-on-surface transition-colors hover:border-outline focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30 disabled:bg-surface-container-low disabled:text-on-surface-variant"
           value={draft}
           onChange={(e) => {
             setDraft(e.target.value);
@@ -114,7 +114,7 @@ export function ChatPanel({
         <button
           type="submit"
           disabled={streaming || draft.trim() === ''}
-          className="rounded-md bg-slate-800 px-4 py-2 text-base font-medium text-white disabled:bg-slate-400"
+          className="rounded-md bg-primary-container px-4 py-2 text-body-md font-medium text-on-primary transition-colors hover:bg-primary disabled:bg-on-surface-variant disabled:opacity-60"
         >
           Send
         </button>

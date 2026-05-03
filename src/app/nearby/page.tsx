@@ -86,35 +86,50 @@ function NearbyContent() {
   );
 
   return (
-    <main className="mx-auto flex max-w-5xl flex-col gap-6 p-6">
-      <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Nearby</h1>
-        <Link href="/" className="text-sm text-slate-600 underline">
-          Back
+    <main className="mx-auto flex max-w-5xl flex-col gap-6 px-page-margin py-page-margin">
+      <header className="flex items-center justify-between border-b border-outline-variant pb-4">
+        <h1 className="font-display text-display text-on-surface">Nearby</h1>
+        <Link
+          href="/"
+          className="text-body-md text-on-surface-variant underline transition-colors hover:text-on-surface"
+        >
+          ← Back
         </Link>
       </header>
 
       <NearbyTypeFilter value={type} onChange={setType} />
 
       {geoError && (
-        <div role="alert" className="rounded-md bg-amber-50 p-4 text-sm text-amber-800">
+        <div
+          role="alert"
+          className="rounded-md border border-tertiary-container bg-tertiary-container/30 p-4 text-body-md text-on-tertiary-container"
+        >
           {geoError}{' '}
-          <button type="button" onClick={requestLocation} className="underline">
+          <button
+            type="button"
+            onClick={requestLocation}
+            className="font-medium underline hover:text-on-surface"
+          >
             Retry
           </button>
         </div>
       )}
 
       {!geoError && !coords && (
-        <p className="text-sm text-slate-600">Reading your location…</p>
+        <p className="text-body-md text-on-surface-variant">Reading your location…</p>
       )}
 
       {coords && (
         <>
           <NearbyMap centre={coords} items={sortedItems} />
-          {loading && <p className="text-sm text-slate-600">Searching…</p>}
+          {loading && (
+            <p className="text-body-md text-on-surface-variant">Searching…</p>
+          )}
           {searchError && (
-            <div role="alert" className="rounded-md bg-red-50 p-3 text-sm text-red-800">
+            <div
+              role="alert"
+              className="rounded-md bg-error-container p-3 text-body-md text-on-error-container"
+            >
               {searchError}
             </div>
           )}

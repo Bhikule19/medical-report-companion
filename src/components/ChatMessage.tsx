@@ -12,8 +12,10 @@ export function ChatMessage({ message, onSpeak }: ChatMessageProps) {
     <div className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
       <div className="flex max-w-[85%] items-start gap-2">
         <div
-          className={`whitespace-pre-wrap rounded-lg px-4 py-2 text-base leading-relaxed ${
-            isUser ? 'bg-slate-700 text-white' : 'bg-slate-100 text-slate-800'
+          className={`whitespace-pre-wrap rounded-lg px-4 py-2 text-body-md leading-relaxed ${
+            isUser
+              ? 'bg-primary-container text-on-primary'
+              : 'bg-surface-container-low text-on-surface'
           }`}
         >
           {message.content}

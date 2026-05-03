@@ -46,7 +46,7 @@ export function DeleteReportButton({ onDelete, disabled }: DeleteReportButtonPro
         onClick={handleOpen}
         disabled={disabled}
         aria-label="Delete report"
-        className="rounded-md p-1 text-lg leading-none text-slate-400 hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+        className="rounded-md p-1 text-lg leading-none text-on-surface-variant transition-colors hover:bg-error-container hover:text-on-error-container disabled:opacity-50"
       >
         ×
       </button>

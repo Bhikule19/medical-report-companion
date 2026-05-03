@@ -71,7 +71,7 @@ export function SpeakButton({ text, onPlay }: SpeakButtonProps) {
       onClick={handleClick}
       aria-label={label}
       title={label}
-      className="inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-700 disabled:opacity-50"
+      className="inline-flex h-9 w-9 items-center justify-center rounded-md text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface disabled:opacity-50"
     >
       {state === 'playing' ? <StopIcon /> : state === 'loading' ? <Spinner /> : <SpeakerIcon />}
     </button>

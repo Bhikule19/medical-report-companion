@@ -18,10 +18,10 @@ export function LanguagePicker({ onChange, disabled }: LanguagePickerProps = {})
   }
 
   return (
-    <label className="flex items-center gap-3 text-base">
+    <label className="flex items-center gap-2 text-body-md text-on-surface-variant">
       <span className="font-medium">Language</span>
       <select
-        className="rounded-md border border-slate-300 bg-white px-3 py-2 text-base focus:border-slate-500 focus:outline-none disabled:bg-slate-100 disabled:text-slate-500"
+        className="rounded-md border border-outline-variant bg-surface-container-lowest px-3 py-2 text-body-md text-on-surface transition-colors hover:border-outline disabled:bg-surface-container disabled:text-on-surface-variant"
         value={language}
         onChange={(e) => handleChange(e.target.value as Language)}
         disabled={disabled}
