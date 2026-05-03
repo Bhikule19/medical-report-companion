@@ -3,6 +3,7 @@
 import { Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
+import { EmailAuthForm } from '@/components/EmailAuthForm';
 import { SignInButton } from '@/components/SignInButton';
 
 const ERROR_MESSAGES: Record<string, string> = {
@@ -49,9 +50,20 @@ function SignInContent() {
             {errorMessage}
           </div>
         )}
+
         <div className="mt-7">
           <SignInButton />
         </div>
+
+        <div className="my-6 flex items-center gap-3">
+          <span className="h-px flex-1 bg-outline-variant" aria-hidden />
+          <span className="text-label-caps uppercase tracking-wider text-on-surface-variant">
+            or
+          </span>
+          <span className="h-px flex-1 bg-outline-variant" aria-hidden />
+        </div>
+
+        <EmailAuthForm />
       </motion.div>
     </main>
   );
