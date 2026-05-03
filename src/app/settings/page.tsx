@@ -3,8 +3,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { AuthGate } from '@/components/AuthGate';
-import { ConsentGate } from '@/components/ConsentGate';
-import { Footer } from '@/components/Footer';
 import { ConsentToggles } from '@/components/ConsentToggles';
 import { TextScalePicker } from '@/components/TextScalePicker';
 import { useSession } from '@/lib/auth/useSession';
@@ -138,10 +136,7 @@ function SettingsContent() {
 export default function SettingsPage() {
   return (
     <AuthGate>
-      <ConsentGate>
-        <SettingsContent />
-        <Footer />
-      </ConsentGate>
+      <SettingsContent />
     </AuthGate>
   );
 }
