@@ -4,8 +4,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { APIProvider, useMapsLibrary } from '@vis.gl/react-google-maps';
 import { AuthGate } from '@/components/AuthGate';
-import { ConsentGate } from '@/components/ConsentGate';
-import { Footer } from '@/components/Footer';
 import { NearbyTypeFilter } from '@/components/NearbyTypeFilter';
 import { NearbyList } from '@/components/NearbyList';
 import { NearbyMap } from '@/components/NearbyMap';
@@ -130,12 +128,9 @@ function NearbyContent() {
 export default function NearbyPage() {
   return (
     <AuthGate>
-      <ConsentGate>
-        <APIProvider apiKey={config.apiKey} libraries={config.libraries}>
-          <NearbyContent />
-        </APIProvider>
-        <Footer />
-      </ConsentGate>
+      <APIProvider apiKey={config.apiKey} libraries={config.libraries}>
+        <NearbyContent />
+      </APIProvider>
     </AuthGate>
   );
 }
