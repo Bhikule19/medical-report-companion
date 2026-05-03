@@ -53,7 +53,7 @@ export function ReportSummary({
         {streaming && (
           <span
             aria-label="Generating summary"
-            className="ml-1 inline-block h-4 w-2 animate-pulse rounded bg-secondary align-middle"
+            className="ml-1 inline-block h-[1em] w-[2px] translate-y-[2px] animate-pulse bg-secondary align-baseline"
           />
         )}
       </div>

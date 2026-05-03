@@ -1,11 +1,13 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { Loader2, Mic, Square } from 'lucide-react';
 import {
   isRecordingSupported,
   startRecording,
   type RecorderHandle,
 } from '@/lib/audio/recorder';
+import { cn } from '@/lib/utils';
 
 export interface VoiceInputButtonProps {
   disabled: boolean;
@@ -61,39 +63,20 @@ export function VoiceInputButton({ disabled, onTranscribe }: VoiceInputButtonPro
       disabled={disabled || busy}
       aria-label={label}
       title={label}
-      className={`flex h-touch-target w-touch-target shrink-0 items-center justify-center rounded-md border transition-colors disabled:opacity-50 ${
+      className={cn(
+        'flex h-touch-target w-touch-target shrink-0 items-center justify-center rounded-md border transition-all disabled:opacity-50',
         recording
           ? 'border-error bg-error-container text-on-error-container hover:bg-error-container/80'
-          : 'border-outline-variant bg-surface-container-lowest text-on-surface hover:border-outline hover:bg-surface-container-low'
-      }`}
+          : 'border-outline-variant bg-surface-container-lowest text-on-surface hover:-translate-y-px hover:border-outline hover:bg-surface-container-low hover:shadow-card',
+      )}
     >
-      {busy ? <Spinner /> : recording ? <StopIcon /> : <MicIcon />}
+      {busy ? (
+        <Loader2 className="h-5 w-5 animate-spin" />
+      ) : recording ? (
+        <Square className="h-4 w-4 fill-current" />
+      ) : (
+        <Mic className="h-5 w-5" />
+      )}
     </button>
-  );
-}
-
-function MicIcon() {
-  return (
-    <svg viewBox="0 0 20 20" aria-hidden className="h-5 w-5" fill="currentColor">
-      <path d="M10 2a3 3 0 0 0-3 3v5a3 3 0 1 0 6 0V5a3 3 0 0 0-3-3Z" />
-      <path d="M5 9a1 1 0 0 1 1 1 4 4 0 0 0 8 0 1 1 0 0 1 2 0 6 6 0 0 1-5 5.917V17h2a1 1 0 1 1 0 2H7a1 1 0 1 1 0-2h2v-1.083A6 6 0 0 1 4 10a1 1 0 0 1 1-1Z" />
-    </svg>
-  );
-}
-
-function StopIcon() {
-  return (
-    <svg viewBox="0 0 20 20" aria-hidden className="h-4 w-4" fill="currentColor">
-      <rect x="4" y="4" width="12" height="12" rx="1.5" />
-    </svg>
-  );
-}
-
-function Spinner() {
-  return (
-    <svg viewBox="0 0 20 20" aria-hidden className="h-5 w-5 animate-spin" fill="none">
-      <circle cx="10" cy="10" r="7" stroke="currentColor" strokeOpacity="0.25" strokeWidth="2.5" />
-      <path d="M17 10a7 7 0 0 0-7-7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-    </svg>
   );
 }

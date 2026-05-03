@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 import { APIProvider, useMapsLibrary } from '@vis.gl/react-google-maps';
 import { AuthGate } from '@/components/AuthGate';
 import { NearbyTypeFilter } from '@/components/NearbyTypeFilter';
@@ -91,9 +92,10 @@ function NearbyContent() {
         <h1 className="font-display text-display text-on-surface">Nearby</h1>
         <Link
           href="/"
-          className="text-body-md text-on-surface-variant underline transition-colors hover:text-on-surface"
+          className="inline-flex items-center gap-1.5 text-body-md text-on-surface-variant transition-colors hover:text-on-surface"
         >
-          ← Back
+          <ArrowLeft className="h-4 w-4" />
+          Back
         </Link>
       </header>
 

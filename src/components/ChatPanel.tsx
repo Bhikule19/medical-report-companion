@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
+import { Send } from 'lucide-react';
 import type { ChatMessage as ChatMessageType } from '@/lib/types';
 import { ChatMessage } from './ChatMessage';
 import { ConfirmDialog } from './ConfirmDialog';
@@ -114,9 +115,10 @@ export function ChatPanel({
         <button
           type="submit"
           disabled={streaming || draft.trim() === ''}
-          className="rounded-md bg-primary-container px-4 py-2 text-body-md font-medium text-on-primary transition-colors hover:bg-primary disabled:bg-on-surface-variant disabled:opacity-60"
+          className="inline-flex items-center gap-2 rounded-md bg-primary-container px-4 py-2 text-body-md font-medium text-on-primary transition-all hover:-translate-y-px hover:bg-primary hover:shadow-card disabled:translate-y-0 disabled:bg-on-surface-variant disabled:opacity-60 disabled:shadow-none"
         >
-          Send
+          <span>Send</span>
+          <Send className="h-4 w-4" aria-hidden />
         </button>
       </form>
 

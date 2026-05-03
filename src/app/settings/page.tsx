@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
 import { AuthGate } from '@/components/AuthGate';
 import { ConsentToggles } from '@/components/ConsentToggles';
 import { TextScalePicker } from '@/components/TextScalePicker';
@@ -82,9 +83,10 @@ function SettingsContent() {
         <h1 className="font-display text-display text-on-surface">Settings</h1>
         <Link
           href="/"
-          className="text-body-md text-on-surface-variant underline transition-colors hover:text-on-surface"
+          className="inline-flex items-center gap-1.5 text-body-md text-on-surface-variant transition-colors hover:text-on-surface"
         >
-          ← Back
+          <ArrowLeft className="h-4 w-4" />
+          Back
         </Link>
       </header>
 

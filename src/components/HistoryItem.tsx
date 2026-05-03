@@ -1,3 +1,7 @@
+'use client';
+
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 import type { ReportSummaryRow } from '@/lib/db/reports';
 import { DeleteReportButton } from './DeleteReportButton';
 
@@ -26,12 +30,16 @@ export function HistoryItem({
   });
 
   return (
-    <div
-      className={`flex items-start gap-2 rounded-md border px-3 py-2 transition-colors ${
+    <motion.div
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+      className={cn(
+        'group flex items-start gap-2 rounded-md border px-3 py-2.5 transition-all',
         active
-          ? 'border-secondary bg-secondary-container/40'
-          : 'border-outline-variant bg-surface-container-lowest hover:border-outline'
-      }`}
+          ? 'border-secondary bg-secondary-container/40 shadow-card'
+          : 'border-outline-variant bg-surface-container-lowest hover:-translate-y-px hover:border-outline hover:shadow-card',
+      )}
     >
       <button
         type="button"
@@ -47,6 +55,6 @@ export function HistoryItem({
       {onDelete && (
         <DeleteReportButton onDelete={() => onDelete(item.id)} disabled={disabled} />
       )}
-    </div>
+    </motion.div>
   );
 }

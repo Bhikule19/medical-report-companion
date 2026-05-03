@@ -4,36 +4,36 @@ import userEvent from '@testing-library/user-event';
 import { TextScalePicker } from './TextScalePicker';
 
 describe('TextScalePicker', () => {
-  it('renders three buttons with correct labels', () => {
+  it('renders three options with correct labels', () => {
     render(<TextScalePicker value="standard" onChange={() => {}} />);
-    expect(screen.getByRole('button', { name: /standard/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /^large$/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /extra-large/i })).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: /standard/i })).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: /^large$/i })).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: /extra-large/i })).toBeInTheDocument();
   });
 
-  it('marks the active option with aria-pressed=true', () => {
+  it('marks the active option', () => {
     render(<TextScalePicker value="large" onChange={() => {}} />);
-    expect(screen.getByRole('button', { name: /^large$/i })).toHaveAttribute(
-      'aria-pressed',
-      'true',
+    expect(screen.getByRole('radio', { name: /^large$/i })).toHaveAttribute(
+      'data-state',
+      'on',
     );
-    expect(screen.getByRole('button', { name: /standard/i })).toHaveAttribute(
-      'aria-pressed',
-      'false',
+    expect(screen.getByRole('radio', { name: /standard/i })).toHaveAttribute(
+      'data-state',
+      'off',
     );
   });
 
   it('fires onChange when an inactive option is clicked', async () => {
     const onChange = vi.fn();
     render(<TextScalePicker value="standard" onChange={onChange} />);
-    await userEvent.click(screen.getByRole('button', { name: /^large$/i }));
+    await userEvent.click(screen.getByRole('radio', { name: /^large$/i }));
     expect(onChange).toHaveBeenCalledWith('large');
   });
 
   it('does not fire onChange when the active option is clicked', async () => {
     const onChange = vi.fn();
     render(<TextScalePicker value="standard" onChange={onChange} />);
-    await userEvent.click(screen.getByRole('button', { name: /standard/i }));
+    await userEvent.click(screen.getByRole('radio', { name: /standard/i }));
     expect(onChange).not.toHaveBeenCalled();
   });
 });

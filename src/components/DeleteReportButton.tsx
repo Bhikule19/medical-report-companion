@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type MouseEvent } from 'react';
+import { X } from 'lucide-react';
 import { ConfirmDialog } from './ConfirmDialog';
 
 export interface DeleteReportButtonProps {
@@ -46,9 +47,9 @@ export function DeleteReportButton({ onDelete, disabled }: DeleteReportButtonPro
         onClick={handleOpen}
         disabled={disabled}
         aria-label="Delete report"
-        className="rounded-md p-1 text-lg leading-none text-on-surface-variant transition-colors hover:bg-error-container hover:text-on-error-container disabled:opacity-50"
+        className="rounded-md p-1.5 text-on-surface-variant transition-colors hover:bg-error-container hover:text-on-error-container disabled:opacity-50"
       >
-        ×
+        <X className="h-4 w-4" />
       </button>
       <ConfirmDialog
         open={open}
