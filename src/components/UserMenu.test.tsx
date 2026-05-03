@@ -16,18 +16,27 @@ beforeEach(() => {
 });
 
 describe('UserMenu', () => {
-  it('renders the email and a sign-out button', async () => {
+  it('renders an avatar trigger button', async () => {
     const { UserMenu } = await import('./UserMenu');
     render(<UserMenu email="user@example.com" />);
-    expect(screen.getByText('user@example.com')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /sign out/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /open profile menu/i })).toBeInTheDocument();
   });
 
-  it('signs out and redirects to /sign-in on click', async () => {
+  it('opens the dropdown and reveals email + sign-out item on click', async () => {
+    const { UserMenu } = await import('./UserMenu');
+    render(<UserMenu email="user@example.com" name="Alice Tester" />);
+    await userEvent.click(screen.getByRole('button', { name: /open profile menu/i }));
+    expect(await screen.findByText('user@example.com')).toBeInTheDocument();
+    expect(screen.getByText('Alice Tester')).toBeInTheDocument();
+    expect(screen.getByRole('menuitem', { name: /sign out/i })).toBeInTheDocument();
+  });
+
+  it('signs out and redirects when the sign-out item is clicked', async () => {
     signOutMock.mockResolvedValue(undefined);
     const { UserMenu } = await import('./UserMenu');
     render(<UserMenu email="user@example.com" />);
-    await userEvent.click(screen.getByRole('button', { name: /sign out/i }));
+    await userEvent.click(screen.getByRole('button', { name: /open profile menu/i }));
+    await userEvent.click(await screen.findByRole('menuitem', { name: /sign out/i }));
     await waitFor(() => expect(signOutMock).toHaveBeenCalled());
     await waitFor(() => expect(replaceMock).toHaveBeenCalledWith('/sign-in'));
   });

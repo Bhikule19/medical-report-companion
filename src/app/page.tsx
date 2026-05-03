@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { MapPin, Settings as SettingsIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { LanguagePicker } from '@/components/LanguagePicker';
 import { UploadZone } from '@/components/UploadZone';
@@ -367,17 +368,31 @@ function HomeContent() {
             />
             <Link
               href="/nearby"
-              className="hidden text-body-md text-on-surface-variant transition-colors hover:text-on-surface sm:inline-block"
+              className="inline-flex items-center gap-2 rounded-md border border-outline-variant bg-surface-container-lowest px-3 py-2 text-body-md font-medium text-on-surface transition-all hover:-translate-y-px hover:border-outline hover:bg-surface-container-low hover:shadow-card"
             >
-              Find nearby
+              <MapPin className="h-4 w-4 text-secondary" aria-hidden />
+              <span className="hidden sm:inline">Find nearby</span>
             </Link>
             <Link
               href="/settings"
-              className="hidden text-body-md text-on-surface-variant transition-colors hover:text-on-surface sm:inline-block"
+              className="inline-flex items-center gap-2 rounded-md border border-outline-variant bg-surface-container-lowest px-3 py-2 text-body-md font-medium text-on-surface transition-all hover:-translate-y-px hover:border-outline hover:bg-surface-container-low hover:shadow-card"
             >
-              Settings
+              <SettingsIcon className="h-4 w-4 text-secondary" aria-hidden />
+              <span className="hidden sm:inline">Settings</span>
             </Link>
-            {session?.user?.email && <UserMenu email={session.user.email} />}
+            {session?.user?.email && (
+              <UserMenu
+                email={session.user.email}
+                name={
+                  (session.user.user_metadata?.full_name as string | undefined) ??
+                  (session.user.user_metadata?.name as string | undefined) ??
+                  null
+                }
+                avatarUrl={
+                  (session.user.user_metadata?.avatar_url as string | undefined) ?? null
+                }
+              />
+            )}
           </div>
         </div>
       </header>
