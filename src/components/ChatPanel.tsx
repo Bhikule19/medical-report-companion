@@ -1,11 +1,18 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
-import { Send } from 'lucide-react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { ChevronRight, Send, Sparkles } from 'lucide-react';
 import type { ChatMessage as ChatMessageType } from '@/lib/types';
 import { ChatMessage } from './ChatMessage';
 import { ConfirmDialog } from './ConfirmDialog';
 import { VoiceInputButton } from './VoiceInputButton';
+import { cn } from '@/lib/utils';
+
+const SUGGESTED_QUESTIONS = [
+  'What does this value mean?',
+  'Is this serious?',
+  'What should I do next?',
+];
 
 export interface ChatPanelProps {
   messages: ChatMessageType[];
@@ -14,6 +21,8 @@ export interface ChatPanelProps {
   onTranscribe?: (blob: Blob) => Promise<string>;
   onSpeakAssistant?: (text: string) => Promise<Blob>;
   onClear?: () => Promise<void>;
+  /** When provided, a collapse button appears in the header (hides the panel). */
+  onCollapse?: () => void;
 }
 
 export function ChatPanel({
@@ -23,12 +32,25 @@ export function ChatPanel({
   onTranscribe,
   onSpeakAssistant,
   onClear,
+  onCollapse,
 }: ChatPanelProps) {
   const [draft, setDraft] = useState('');
   const [voiceOriginated, setVoiceOriginated] = useState(false);
   const [clearOpen, setClearOpen] = useState(false);
   const [clearPending, setClearPending] = useState(false);
   const [clearError, setClearError] = useState<string | null>(null);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+
+  // Auto-scroll to bottom when new messages arrive or streaming updates the
+  // last bubble. Use rAF so we read the post-layout height.
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const id = window.requestAnimationFrame(() => {
+      el.scrollTop = el.scrollHeight;
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [messages, streaming]);
 
   function submit(e: FormEvent) {
     e.preventDefault();
@@ -37,6 +59,11 @@ export function ChatPanel({
     onSend(trimmed, voiceOriginated);
     setDraft('');
     setVoiceOriginated(false);
+  }
+
+  function sendSuggested(text: string) {
+    if (streaming) return;
+    onSend(text, false);
   }
 
   async function handleTranscribe(blob: Blob) {
@@ -67,59 +94,142 @@ export function ChatPanel({
   }
 
   const showClear = !!onClear && messages.length > 0;
+  const isEmpty = messages.length === 0;
 
   return (
-    <section className="flex h-full flex-col rounded-lg border border-outline-variant bg-surface-container-lowest p-6 shadow-card">
-      <header className="mb-4 flex items-center justify-between">
-        <h2 className="font-display text-headline text-on-surface">Ask a question</h2>
-        {showClear && (
-          <button
-            type="button"
-            onClick={() => {
-              if (streaming) return;
-              setClearError(null);
-              setClearOpen(true);
+    <section className="flex h-full min-h-0 flex-col overflow-hidden rounded-lg border border-line bg-surface">
+      <header className="flex items-center justify-between border-b border-line px-5 py-3.5">
+        <h2 className="flex items-center gap-2 text-[14px] font-semibold tracking-[-0.005em]">
+          <span className="grid h-6 w-6 place-items-center rounded-md bg-teal-soft text-teal-deep">
+            <Sparkles className="h-3.5 w-3.5" aria-hidden />
+          </span>
+          Ask about this report
+        </h2>
+        <div className="flex items-center gap-3">
+          {showClear && (
+            <button
+              type="button"
+              onClick={() => {
+                if (streaming) return;
+                setClearError(null);
+                setClearOpen(true);
+              }}
+              disabled={streaming}
+              className="text-[12px] text-muted underline transition-colors hover:text-ink-2 disabled:opacity-50"
+            >
+              Clear
+            </button>
+          )}
+          {onCollapse && (
+            <button
+              type="button"
+              onClick={onCollapse}
+              aria-label="Collapse chat"
+              title="Collapse chat"
+              className="grid h-7 w-7 place-items-center rounded-md text-muted transition-colors hover:bg-surface-2 hover:text-ink-2"
+            >
+              <ChevronRight className="h-4 w-4" aria-hidden />
+            </button>
+          )}
+        </div>
+      </header>
+
+      <div
+        ref={scrollRef}
+        className="flex flex-1 flex-col gap-4 overflow-y-auto px-5 py-5"
+      >
+        {isEmpty ? (
+          <div className="my-auto flex flex-col items-center gap-3 px-2 text-center">
+            <p className="text-[14px] text-muted">
+              Ask anything about your report. The AI only uses what&apos;s in the document.
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-1.5">
+              {SUGGESTED_QUESTIONS.map((q) => (
+                <button
+                  key={q}
+                  type="button"
+                  onClick={() => sendSuggested(q)}
+                  disabled={streaming}
+                  className="rounded-md border border-line bg-surface-2 px-3 py-1.5 text-[12px] text-ink-2 transition-colors hover:border-teal-tint hover:bg-teal-soft hover:text-teal-deep disabled:opacity-50"
+                >
+                  {q}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : (
+          messages.map((m, i) => (
+            <ChatMessage key={i} message={m} onSpeak={onSpeakAssistant} />
+          ))
+        )}
+        {streaming && messages.length > 0 && messages[messages.length - 1].role === 'user' && (
+          <div className="flex items-center gap-2 text-muted-2">
+            <span
+              className="inline-flex h-1.5 w-1.5 animate-typing rounded-full bg-muted-2"
+              style={{ animationDelay: '0s' }}
+            />
+            <span
+              className="inline-flex h-1.5 w-1.5 animate-typing rounded-full bg-muted-2"
+              style={{ animationDelay: '0.15s' }}
+            />
+            <span
+              className="inline-flex h-1.5 w-1.5 animate-typing rounded-full bg-muted-2"
+              style={{ animationDelay: '0.3s' }}
+            />
+          </div>
+        )}
+      </div>
+
+      <form
+        onSubmit={submit}
+        className="border-t border-line bg-surface px-3.5 py-3"
+        aria-label="Chat composer"
+      >
+        <div
+          className={cn(
+            'flex items-end gap-2 rounded-[14px] border border-line bg-surface-2 py-1 pl-3.5 pr-1.5 transition-colors',
+            'focus-within:border-teal focus-within:bg-surface',
+          )}
+        >
+          <input
+            aria-label="Your question"
+            value={draft}
+            onChange={(e) => {
+              setDraft(e.target.value);
+              if (e.target.value === '') setVoiceOriginated(false);
             }}
             disabled={streaming}
-            className="text-body-md text-on-surface-variant underline transition-colors hover:text-on-surface disabled:opacity-50"
+            placeholder="Type your question…"
+            className="min-h-[26px] flex-1 resize-none border-none bg-transparent py-2 text-[14px] leading-snug text-ink outline-none placeholder:text-muted-2 disabled:cursor-not-allowed"
+          />
+          {onTranscribe && (
+            <VoiceInputButton disabled={streaming} onTranscribe={handleTranscribe} />
+          )}
+          <button
+            type="submit"
+            disabled={streaming || draft.trim() === ''}
+            aria-label="Send"
+            className="grid h-[34px] w-[34px] shrink-0 place-items-center rounded-[9px] bg-teal text-white transition-colors hover:bg-teal-deep disabled:cursor-not-allowed disabled:bg-line-2"
           >
-            Clear chat
+            <Send className="h-4 w-4" aria-hidden />
           </button>
+        </div>
+
+        {!isEmpty && (
+          <div className="mt-2.5 flex flex-wrap gap-1.5">
+            {SUGGESTED_QUESTIONS.map((q) => (
+              <button
+                key={q}
+                type="button"
+                onClick={() => sendSuggested(q)}
+                disabled={streaming}
+                className="rounded-md border border-line bg-surface-2 px-2.5 py-1 text-[12px] text-ink-2 transition-colors hover:border-teal-tint hover:bg-teal-soft hover:text-teal-deep disabled:opacity-50"
+              >
+                {q}
+              </button>
+            ))}
+          </div>
         )}
-      </header>
-      <div className="mb-4 flex flex-1 flex-col gap-3 overflow-y-auto">
-        {messages.length === 0 && (
-          <p className="text-body-md text-on-surface-variant">
-            Ask anything about your report. The assistant uses only the report contents.
-          </p>
-        )}
-        {messages.map((m, i) => (
-          <ChatMessage key={i} message={m} onSpeak={onSpeakAssistant} />
-        ))}
-      </div>
-      <form onSubmit={submit} className="flex items-center gap-2">
-        {onTranscribe && (
-          <VoiceInputButton disabled={streaming} onTranscribe={handleTranscribe} />
-        )}
-        <input
-          aria-label="Your question"
-          className="flex-1 rounded-md border border-outline-variant bg-surface-container-lowest px-3 py-2 text-body-md text-on-surface transition-colors hover:border-outline focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/30 disabled:bg-surface-container-low disabled:text-on-surface-variant"
-          value={draft}
-          onChange={(e) => {
-            setDraft(e.target.value);
-            if (e.target.value === '') setVoiceOriginated(false);
-          }}
-          disabled={streaming}
-          placeholder="Type your question…"
-        />
-        <button
-          type="submit"
-          disabled={streaming || draft.trim() === ''}
-          className="inline-flex items-center gap-2 rounded-md bg-primary-container px-4 py-2 text-body-md font-medium text-on-primary transition-all hover:-translate-y-px hover:bg-primary hover:shadow-card disabled:translate-y-0 disabled:bg-on-surface-variant disabled:opacity-60 disabled:shadow-none"
-        >
-          <span>Send</span>
-          <Send className="h-4 w-4" aria-hidden />
-        </button>
       </form>
 
       <ConfirmDialog

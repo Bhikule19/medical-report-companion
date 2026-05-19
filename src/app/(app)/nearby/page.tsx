@@ -1,10 +1,8 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
 import { APIProvider, useMapsLibrary } from '@vis.gl/react-google-maps';
-import { AuthGate } from '@/components/AuthGate';
+import { Topbar } from '@/components/shell/Topbar';
 import { NearbyTypeFilter } from '@/components/NearbyTypeFilter';
 import { NearbyList } from '@/components/NearbyList';
 import { NearbyMap } from '@/components/NearbyMap';
@@ -30,6 +28,7 @@ function NearbyContent() {
   const [items, setItems] = useState<NearbyPlace[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
 
   const requestLocation = useCallback(() => {
     setGeoError(null);
@@ -68,7 +67,10 @@ function NearbyContent() {
       radius: 5000,
     })
       .then((results) => {
-        if (!cancelled) setItems(results);
+        if (!cancelled) {
+          setItems(results);
+          setActiveId(null);
+        }
       })
       .catch((e: Error) => {
         if (!cancelled) setSearchError(e.message);
@@ -87,67 +89,72 @@ function NearbyContent() {
   );
 
   return (
-    <main className="mx-auto flex max-w-5xl flex-col gap-6 px-page-margin py-page-margin">
-      <header className="flex items-center justify-between border-b border-outline-variant pb-4">
-        <h1 className="font-display text-display text-on-surface">Nearby</h1>
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1.5 text-body-md text-on-surface-variant transition-colors hover:text-on-surface"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back
-        </Link>
-      </header>
+    <>
+      <Topbar title="Labs nearby" crumb="Places" />
 
-      <NearbyTypeFilter value={type} onChange={setType} />
+      <div className="flex-1 overflow-y-auto px-8 py-7 max-md:px-4 max-md:py-4">
+        <div className="mx-auto flex max-w-[1280px] flex-col gap-4">
+          <div className="flex flex-wrap items-center gap-3">
+            <NearbyTypeFilter value={type} onChange={setType} />
+            {coords && (
+              <span className="text-[12px] text-muted">
+                {loading
+                  ? 'Searching nearby…'
+                  : `${sortedItems.length} ${type === 'hospital' ? 'hospitals' : 'labs'} within 5 km`}
+              </span>
+            )}
+          </div>
 
-      {geoError && (
-        <div
-          role="alert"
-          className="rounded-md border border-tertiary-container bg-tertiary-container/30 p-4 text-body-md text-on-tertiary-container"
-        >
-          {geoError}{' '}
-          <button
-            type="button"
-            onClick={requestLocation}
-            className="font-medium underline hover:text-on-surface"
-          >
-            Retry
-          </button>
-        </div>
-      )}
-
-      {!geoError && !coords && (
-        <p className="text-body-md text-on-surface-variant">Reading your location…</p>
-      )}
-
-      {coords && (
-        <>
-          <NearbyMap centre={coords} items={sortedItems} />
-          {loading && (
-            <p className="text-body-md text-on-surface-variant">Searching…</p>
-          )}
-          {searchError && (
+          {geoError && (
             <div
               role="alert"
-              className="rounded-md bg-error-container p-3 text-body-md text-on-error-container"
+              className="rounded-md border border-amber-soft bg-amber-soft/40 p-3.5 text-[13px] text-amber"
             >
+              {geoError}{' '}
+              <button
+                type="button"
+                onClick={requestLocation}
+                className="font-medium underline hover:text-ink-2"
+              >
+                Retry
+              </button>
+            </div>
+          )}
+
+          {!geoError && !coords && (
+            <p className="text-[13px] text-muted">Reading your location…</p>
+          )}
+
+          {searchError && (
+            <div role="alert" className="rounded-md bg-red-soft px-3.5 py-2.5 text-[13px] text-red">
               {searchError}
             </div>
           )}
-          {!loading && !searchError && <NearbyList items={sortedItems} />}
-        </>
-      )}
-    </main>
+
+          {coords && (
+            <div className="grid gap-5 lg:grid-cols-[380px_1fr]">
+              <div className="min-h-0 overflow-y-auto pr-1">
+                <NearbyList items={sortedItems} activeId={activeId} onSelect={setActiveId} />
+              </div>
+              <NearbyMap
+                centre={coords}
+                items={sortedItems}
+                activeId={activeId}
+                onSelect={setActiveId}
+                className="relative h-[600px] w-full overflow-hidden rounded-lg border border-line-2 bg-[#dfeaf0] max-lg:h-[420px]"
+              />
+            </div>
+          )}
+        </div>
+      </div>
+    </>
   );
 }
 
 export default function NearbyPage() {
   return (
-    <AuthGate>
-      <APIProvider apiKey={config.apiKey} libraries={config.libraries}>
-        <NearbyContent />
-      </APIProvider>
-    </AuthGate>
+    <APIProvider apiKey={config.apiKey} libraries={config.libraries}>
+      <NearbyContent />
+    </APIProvider>
   );
 }

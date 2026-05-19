@@ -72,7 +72,7 @@ export function SpeakButton({ text, onPlay }: SpeakButtonProps) {
       onClick={handleClick}
       aria-label={label}
       title={label}
-      className="inline-flex h-9 w-9 items-center justify-center rounded-md text-on-surface-variant transition-colors hover:bg-surface-container hover:text-on-surface disabled:opacity-50"
+      className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-white/60 text-teal-deep transition-colors hover:bg-white hover:text-teal disabled:opacity-50"
     >
       {state === 'playing' ? (
         <Square className="h-3.5 w-3.5 fill-current" />

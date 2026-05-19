@@ -23,16 +23,16 @@ export function NearbyTypeFilter({ value, onChange }: NearbyTypeFilterProps) {
         if (next) onChange(next as NearbyType);
       }}
       aria-label="Place type filter"
-      className="inline-flex gap-2"
+      className="inline-flex gap-1.5"
     >
       {OPTIONS.map((opt) => (
         <ToggleGroup.Item
           key={opt.value}
           value={opt.value}
           className={cn(
-            'rounded-full border px-5 py-2 text-body-md font-medium transition-all',
-            'border-outline-variant bg-surface-container-lowest text-on-surface hover:border-outline',
-            'data-[state=on]:border-primary-container data-[state=on]:bg-primary-container data-[state=on]:text-on-primary data-[state=on]:shadow-card',
+            'rounded-full border px-3 py-1.5 text-[12px] font-medium transition-colors',
+            'border-line-2 bg-surface text-ink-2 hover:border-muted-2',
+            'data-[state=on]:border-ink data-[state=on]:bg-ink data-[state=on]:text-white',
           )}
         >
           {opt.label}

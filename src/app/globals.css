@@ -3,70 +3,194 @@
 @tailwind utilities;
 
 /*
- * Material 3 inspired light-mode palette. Each variable holds an RGB triplet
- * (no commas, no rgb() wrapper) so Tailwind can compose alpha values via
- * `rgb(var(--color-...) / <alpha-value>)` in the theme config.
+ * Clinical & trustworthy palette — teal-led with soft surfaces and tabular
+ * mono for medical values. Each variable is an RGB triplet so Tailwind can
+ * compose alpha values via `rgb(var(--color-...) / <alpha-value>)`.
  */
 :root {
-  --font-scale: 1.125;
+  --font-scale: 1;
 
-  --color-surface: 251 249 250;
-  --color-surface-dim: 219 217 219;
-  --color-surface-bright: 251 249 250;
-  --color-surface-container-lowest: 255 255 255;
-  --color-surface-container-low: 245 243 245;
-  --color-surface-container: 239 237 239;
-  --color-surface-container-high: 234 231 233;
-  --color-surface-container-highest: 228 226 228;
-  --color-surface-variant: 228 226 228;
+  --color-bg: 244 247 250;
+  --color-bg-deep: 234 241 246;
+  --color-surface: 255 255 255;
+  --color-surface-2: 248 250 252;
+  --color-surface-dim: 234 241 246;
 
-  --color-on-surface: 27 27 29;
-  --color-on-surface-variant: 68 71 76;
+  --color-ink: 11 31 42;
+  --color-ink-2: 27 47 59;
+  --color-muted: 95 118 137;
+  --color-muted-2: 132 151 168;
+  --color-line: 227 236 242;
+  --color-line-2: 210 222 232;
 
-  --color-outline: 117 119 125;
-  --color-outline-variant: 197 198 205;
+  --color-teal: 14 124 123;
+  --color-teal-deep: 10 95 94;
+  --color-teal-soft: 230 244 244;
+  --color-teal-tint: 212 236 236;
 
-  --color-primary: 29 43 62;
-  --color-on-primary: 255 255 255;
-  --color-primary-container: 51 65 85;
-  --color-on-primary-container: 158 173 197;
+  --color-blue: 37 99 235;
+  --color-blue-soft: 230 238 253;
 
-  --color-secondary: 0 106 97;
-  --color-on-secondary: 255 255 255;
-  --color-secondary-container: 134 242 228;
-  --color-on-secondary-container: 0 111 102;
-
-  --color-tertiary: 56 39 10;
-  --color-on-tertiary: 255 255 255;
-  --color-tertiary-container: 80 61 30;
-  --color-on-tertiary-container: 195 168 129;
-
-  --color-error: 186 26 26;
-  --color-on-error: 255 255 255;
-  --color-error-container: 255 218 214;
-  --color-on-error-container: 147 0 10;
-
-  /* Brighter teal for focus rings — readable against light surfaces. */
-  --color-accent: 13 148 136;
+  --color-green: 21 128 61;
+  --color-green-soft: 226 242 232;
+  --color-amber: 180 83 9;
+  --color-amber-soft: 253 243 224;
+  --color-red: 180 35 24;
+  --color-red-soft: 252 233 231;
 }
 
 html {
   font-size: calc(16px * var(--font-scale));
+  /* Avoid a horizontal scrollbar from the sidebar on narrow viewports. */
+  overflow-x: hidden;
 }
 
 body {
   font-family:
-    var(--font-inter),
+    var(--font-geist),
+    'Geist',
     system-ui,
     -apple-system,
     sans-serif;
-  color: rgb(var(--color-on-surface));
-  background-color: rgb(var(--color-surface));
+  color: rgb(var(--color-ink));
+  background-color: rgb(var(--color-bg));
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Custom scrollbar — calmer + clinical */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #c9d6e0;
+  border-radius: 999px;
+  border: 2px solid rgb(var(--color-bg));
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a7bbcb;
 }
 
 /* Focus rings: visible by default for keyboard users. */
 :focus-visible {
-  outline: 2px solid rgb(var(--color-accent));
+  outline: 2px solid rgb(var(--color-teal));
   outline-offset: 2px;
   border-radius: 0.25rem;
+}
+
+/* ---- Brand mark (teal cross) ----------------------------------------- */
+.brand-mark {
+  position: relative;
+  border-radius: 0.5625rem;
+  background: linear-gradient(135deg, rgb(var(--color-teal)) 0%, rgb(var(--color-teal-deep)) 100%);
+  display: grid;
+  place-items: center;
+  color: white;
+  box-shadow: 0 4px 10px rgb(14 124 123 / 0.25);
+}
+.brand-mark::after {
+  content: '';
+  position: absolute;
+  inset: 22%;
+  border-radius: 0.3125rem;
+  background:
+    linear-gradient(white, white) center / 60% 14% no-repeat,
+    linear-gradient(white, white) center / 14% 60% no-repeat;
+}
+
+/* ---- Severity range sparkline --------------------------------------- */
+.range-track {
+  background: rgb(var(--color-bg-deep));
+}
+.range-normal {
+  background: rgb(var(--color-green-soft));
+}
+
+/* ---- Voice wave bars ------------------------------------------------- */
+.voice-wave > span {
+  display: block;
+  width: 2.5px;
+  background: currentColor;
+  border-radius: 2px;
+  animation: wave 1.4s ease-in-out infinite;
+}
+.voice-wave > span:nth-child(1) {
+  animation-delay: 0s;
+}
+.voice-wave > span:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.voice-wave > span:nth-child(3) {
+  animation-delay: 0.2s;
+}
+.voice-wave > span:nth-child(4) {
+  animation-delay: 0.3s;
+}
+.voice-wave > span:nth-child(5) {
+  animation-delay: 0.4s;
+}
+.voice-wave > span:nth-child(6) {
+  animation-delay: 0.5s;
+}
+.voice-wave > span:nth-child(7) {
+  animation-delay: 0.6s;
+}
+.voice-wave > span:nth-child(8) {
+  animation-delay: 0.7s;
+}
+@keyframes wave {
+  0%,
+  100% {
+    height: 30%;
+  }
+  50% {
+    height: 100%;
+  }
+}
+
+/* ---- Voice orb (full-screen overlay) --------------------------------- */
+.voice-orb {
+  background: radial-gradient(
+    circle at 32% 28%,
+    #5ce3df 0%,
+    #14b8a6 35%,
+    rgb(var(--color-teal)) 65%,
+    rgb(var(--color-teal-deep)) 100%
+  );
+  box-shadow:
+    0 0 60px rgb(20 184 166 / 0.45),
+    inset 0 -20px 60px rgb(0 0 0 / 0.35),
+    inset 0 12px 30px rgb(255 255 255 / 0.18);
+}
+
+/* ---- Underlined emphasis on hero h1 --------------------------------- */
+.h1-underline em {
+  font-style: normal;
+  color: rgb(var(--color-teal));
+  position: relative;
+}
+.h1-underline em::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 6px;
+  background: rgb(var(--color-teal-soft));
+  z-index: -1;
+  border-radius: 2px;
+}
+
+/* ---- RTL adjustments ------------------------------------------------- */
+[dir='rtl'] .msg--user {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+[dir='rtl'] .topbar-right {
+  margin-left: 0;
+  margin-right: auto;
 }

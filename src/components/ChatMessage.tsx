@@ -17,21 +17,33 @@ export function ChatMessage({ message, onSpeak }: ChatMessageProps) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-      className={cn('flex', isUser ? 'justify-end' : 'justify-start')}
+      className={cn(
+        'msg flex max-w-[88%] gap-2.5',
+        isUser ? 'msg--user ml-auto flex-row-reverse' : 'mr-auto flex-row',
+      )}
     >
-      <div className="flex max-w-[85%] items-start gap-2">
-        <div
-          className={cn(
-            'whitespace-pre-wrap rounded-lg px-4 py-2.5 text-body-md leading-relaxed shadow-card',
-            isUser
-              ? 'bg-primary-container text-on-primary'
-              : 'bg-surface-container-low text-on-surface',
-          )}
-        >
-          {message.content}
-        </div>
+      <div
+        aria-hidden
+        className={cn(
+          'grid h-[30px] w-[30px] shrink-0 place-items-center rounded-full text-[11px] font-semibold',
+          isUser ? 'bg-bg-deep text-ink-2' : 'bg-teal-soft text-teal-deep',
+        )}
+      >
+        {isUser ? 'You' : 'AI'}
+      </div>
+      <div
+        className={cn(
+          'min-w-0 whitespace-pre-wrap rounded-[14px] border px-3.5 py-2.5 text-[14px] leading-relaxed',
+          isUser
+            ? 'border-teal bg-teal text-white'
+            : 'border-line bg-surface-2 text-ink-2',
+        )}
+      >
+        {message.content}
         {!isUser && onSpeak && message.content.trim().length > 0 && (
-          <SpeakButton text={message.content} onPlay={onSpeak} />
+          <div className="mt-2 -mb-0.5">
+            <SpeakButton text={message.content} onPlay={onSpeak} />
+          </div>
         )}
       </div>
     </motion.div>

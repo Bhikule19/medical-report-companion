@@ -1,8 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { motion } from 'framer-motion';
-import { FileUp } from 'lucide-react';
+import { Camera, FileUp, Upload } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const MAX_BYTES = 10 * 1024 * 1024;
@@ -16,7 +15,8 @@ export interface UploadZoneProps {
 export function UploadZone({ onFile, disabled }: UploadZoneProps) {
   const [error, setError] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
   function validate(file: File): string | null {
     if (!ACCEPTED.includes(file.type)) return 'Please upload a PDF or image (JPEG/PNG).';
@@ -24,32 +24,27 @@ export function UploadZone({ onFile, disabled }: UploadZoneProps) {
     return null;
   }
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setError(null);
-    const file = e.target.files?.[0];
+  function consume(file: File | undefined) {
     if (!file) return;
     const err = validate(file);
     if (err) {
       setError(err);
-      e.target.value = '';
       return;
     }
+    setError(null);
     onFile(file);
+  }
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    consume(e.target.files?.[0]);
+    e.target.value = '';
   }
 
   function handleDrop(e: React.DragEvent) {
     e.preventDefault();
     setDragOver(false);
     if (disabled) return;
-    setError(null);
-    const file = e.dataTransfer.files?.[0];
-    if (!file) return;
-    const err = validate(file);
-    if (err) {
-      setError(err);
-      return;
-    }
-    onFile(file);
+    consume(e.dataTransfer.files?.[0]);
   }
 
   return (
@@ -61,39 +56,53 @@ export function UploadZone({ onFile, disabled }: UploadZoneProps) {
       onDragLeave={() => setDragOver(false)}
       onDrop={handleDrop}
       className={cn(
-        'relative flex min-h-[20rem] flex-col items-center justify-center overflow-hidden rounded-xl border-2 border-dashed bg-surface-container-lowest p-10 text-center transition-all',
-        dragOver
-          ? 'border-secondary bg-secondary-container/30 shadow-card-hover'
-          : 'border-outline-variant hover:border-secondary/50 hover:shadow-card',
+        'relative overflow-hidden rounded-xl border-[1.5px] border-dashed bg-surface px-6 pb-7 pt-9 text-center transition-all duration-200',
+        dragOver ? 'border-teal bg-teal-soft' : 'border-line-2 hover:border-muted-2',
       )}
     >
-      <DocumentIllustration className="mb-6" />
-      <label
-        htmlFor="upload-input"
+      <div
         className={cn(
-          'cursor-pointer font-display text-headline text-on-surface',
-          disabled && 'cursor-not-allowed opacity-60',
+          'mx-auto mb-3.5 grid h-16 w-16 place-items-center rounded-lg bg-teal-soft text-teal transition-transform duration-200',
+          dragOver && '-translate-y-1 scale-105 bg-white',
         )}
       >
+        <Upload className="h-7 w-7" strokeWidth={1.8} aria-hidden />
+      </div>
+
+      <h2 className="mb-1.5 text-[18px] font-semibold tracking-[-0.005em]">
         Drop your report here
-      </label>
-      <p className="mt-2 max-w-sm text-body-md text-on-surface-variant">
-        Or browse from your device. PDF or photo, up to 10 MB.
+      </h2>
+      <p className="mb-4.5 text-[13px] text-muted">
+        Or pick a file from your device. We&apos;ll explain what it says in your language.
       </p>
 
-      <button
-        type="button"
-        onClick={() => inputRef.current?.click()}
-        disabled={disabled}
-        className="mt-6 inline-flex items-center gap-2 rounded-md bg-primary-container px-5 py-2.5 text-body-md font-medium text-on-primary transition-all hover:-translate-y-px hover:bg-primary hover:shadow-card disabled:translate-y-0 disabled:bg-on-surface-variant disabled:opacity-60 disabled:shadow-none"
-      >
-        <FileUp className="h-4 w-4" aria-hidden />
-        Choose a file
-      </button>
+      <div className="mb-4 flex flex-wrap items-center justify-center gap-2.5">
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={disabled}
+          className="inline-flex items-center gap-1.5 rounded-[10px] bg-teal px-4 py-2.5 text-[13px] font-medium text-white shadow-sm transition-colors hover:bg-teal-deep disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <FileUp className="h-3.5 w-3.5" aria-hidden />
+          Choose a file
+        </button>
+        <button
+          type="button"
+          onClick={() => cameraInputRef.current?.click()}
+          disabled={disabled}
+          className="inline-flex items-center gap-1.5 rounded-[10px] border border-line-2 bg-surface px-4 py-2.5 text-[13px] font-medium text-ink-2 transition-colors hover:bg-surface-2 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <Camera className="h-3.5 w-3.5" aria-hidden />
+          Take a photo
+        </button>
+      </div>
+
+      <p className="font-mono text-[11px] uppercase tracking-wider text-muted-2">
+        PDF · JPG · PNG · up to 10 MB
+      </p>
 
       <input
-        id="upload-input"
-        ref={inputRef}
+        ref={fileInputRef}
         type="file"
         accept=".pdf,image/jpeg,image/png"
         className="sr-only"
@@ -101,44 +110,25 @@ export function UploadZone({ onFile, disabled }: UploadZoneProps) {
         disabled={disabled}
         aria-label="Upload report"
       />
+      <input
+        ref={cameraInputRef}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="sr-only"
+        onChange={handleChange}
+        disabled={disabled}
+        aria-label="Capture report photo"
+      />
 
       {error && (
-        <motion.p
-          initial={{ opacity: 0, y: 4 }}
-          animate={{ opacity: 1, y: 0 }}
+        <p
           role="alert"
-          className="mt-5 rounded-md bg-error-container px-4 py-2 text-body-md text-on-error-container"
+          className="mx-auto mt-4 max-w-sm rounded-md bg-red-soft px-3.5 py-2 text-[13px] text-red"
         >
           {error}
-        </motion.p>
+        </p>
       )}
     </div>
-  );
-}
-
-function DocumentIllustration({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 96 96"
-      aria-hidden
-      className={cn('h-20 w-20 text-secondary', className)}
-      fill="none"
-    >
-      <rect
-        x="20"
-        y="12"
-        width="56"
-        height="72"
-        rx="6"
-        className="fill-surface-container-low"
-        stroke="currentColor"
-        strokeWidth="1.5"
-      />
-      <line x1="32" y1="28" x2="58" y2="28" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      <line x1="32" y1="38" x2="64" y2="38" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
-      <line x1="32" y1="48" x2="60" y2="48" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
-      <line x1="32" y1="58" x2="50" y2="58" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.4" />
-      <circle cx="64" cy="58" r="3" className="fill-secondary-container" stroke="currentColor" strokeWidth="1.5" />
-    </svg>
   );
 }

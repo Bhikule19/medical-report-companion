@@ -1,16 +1,18 @@
 import type { Metadata } from 'next';
-import { Inter, Manrope } from 'next/font/google';
+import { Geist, IBM_Plex_Mono } from 'next/font/google';
 import './globals.css';
 
-const inter = Inter({
+const geist = Geist({
   subsets: ['latin'],
-  variable: '--font-inter',
+  variable: '--font-geist',
+  weight: ['400', '500', '600', '700'],
   display: 'swap',
 });
 
-const manrope = Manrope({
+const plexMono = IBM_Plex_Mono({
   subsets: ['latin'],
-  variable: '--font-manrope',
+  variable: '--font-mono',
+  weight: ['400', '500'],
   display: 'swap',
 });
 
@@ -19,12 +21,14 @@ export const metadata: Metadata = {
   description: 'Upload your medical report and understand it in your language.',
 };
 
+// Set the global font-scale before paint so resized text doesn't flash. The
+// scale is consumed by `html { font-size: calc(16px * var(--font-scale)); }`.
 const TEXT_SCALE_INIT = `
 (function() {
   try {
     var v = localStorage.getItem('text-scale');
-    var map = { standard: '1.125', large: '1.4', 'extra-large': '1.625' };
-    var value = map[v] || '1.125';
+    var map = { standard: '1', large: '1.125', 'extra-large': '1.25' };
+    var value = map[v] || '1';
     document.documentElement.style.setProperty('--font-scale', value);
   } catch (e) {}
 })();
@@ -41,7 +45,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: TEXT_SCALE_INIT }} />
       </head>
       <body
-        className={`${inter.variable} ${manrope.variable} min-h-screen bg-surface text-on-surface antialiased`}
+        className={`${geist.variable} ${plexMono.variable} min-h-screen bg-bg text-ink antialiased`}
       >
         {children}
       </body>
